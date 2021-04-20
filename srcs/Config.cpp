@@ -126,8 +126,7 @@ void			Config::getContent(std::string &buffer, std::string &context, std::string
 	{
 		ft::getline(buffer, line);
 		nb_line++;
-		while (ft::isspace(line[0]))
-			line.erase(line.begin());
+		line = ft::trim(line);
 		if (line[0] != '}')
 		{
 			pos = 0;
@@ -153,6 +152,8 @@ void			Config::getContent(std::string &buffer, std::string &context, std::string
 				getContent(buffer, context, line, nb_line, config);
 			else
 			{
+				key = ft::trim(key);
+				value = ft::trim(value);
 				std::pair<std::string, std::string>	tmp(key, value);
 				config[context].insert(tmp);
 				key.clear();
@@ -163,9 +164,9 @@ void			Config::getContent(std::string &buffer, std::string &context, std::string
 		else if (line[0] == '}' && !buffer.empty())
 		{
 			pos = 0;
-			while (ft::isspace(line[++pos]))
-				line.erase(line.begin());
-			if (line[pos])
+			while (ft::isspace(line[1]))
+				line.erase(line.begin() + 1);
+			if (line[1])
 				throw(Config::InvalidConfigFileException(nb_line));
 			context.pop_back();
 			context = context.substr(0, context.find_last_of('|') + 1);

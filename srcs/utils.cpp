@@ -5,6 +5,17 @@
 
 namespace ft
 {
+	std::string &trim(std::string &str)
+	{
+		if (!str.empty())
+		{
+			while (isspace(str[0]))
+				str.erase(str.begin());
+			while (isspace(str[str.size() - 1]))
+				str.erase(str.end() - 1);
+		}
+		return (str);
+	}
 
 	bool	isspace(int c)
 	{
