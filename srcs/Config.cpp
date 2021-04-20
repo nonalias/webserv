@@ -126,8 +126,7 @@ void			Config::getContent(std::string &buffer, std::string &context, std::string
 	{
 		ft::getline(buffer, line);
 		nb_line++;
-		while (ft::isspace(line[0]))
-			line.erase(line.begin());
+		line = ft::trim(line);
 		if (line[0] != '}')
 		{
 			pos = 0;
@@ -153,6 +152,8 @@ void			Config::getContent(std::string &buffer, std::string &context, std::string
 				getContent(buffer, context, line, nb_line, config);
 			else
 			{
+				key = ft::trim(key);
+				value = ft::trim(value);
 				std::pair<std::string, std::string>	tmp(key, value);
 				config[context].insert(tmp);
 				key.clear();
