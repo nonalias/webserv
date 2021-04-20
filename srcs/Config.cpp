@@ -164,9 +164,9 @@ void			Config::getContent(std::string &buffer, std::string &context, std::string
 		else if (line[0] == '}' && !buffer.empty())
 		{
 			pos = 0;
-			while (ft::isspace(line[++pos]))
-				line.erase(line.begin());
-			if (line[pos])
+			while (ft::isspace(line[1]))
+				line.erase(line.begin() + 1);
+			if (line[1])
 				throw(Config::InvalidConfigFileException(nb_line));
 			context.pop_back();
 			context = context.substr(0, context.find_last_of('|') + 1);
