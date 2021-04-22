@@ -12,4 +12,3 @@ void		    Dispatcher::parseCGIResult(Client &client)
 {
 
 }
-

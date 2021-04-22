@@ -1,41 +1,50 @@
-void	Dispatcher::Dispatcher()
+Dispatcher::Dispatcher()
 {
-    // 생성자 관련 코드
+    typedef void	(Dispatcher::*ptr)(Client &client);
 
-//    map["GET"] = &Handler::handleGet;
-//    map["HEAD"] = &Handler::handleHead;
-//    map["PUT"] = &Handler::handlePut;
-//    map["POST"] = &Handler::handlePost;
-//    map["CONNECT"] = &Handler::handleConnect;
-//    map["TRACE"] = &Handler::handleTrace;
-//    map["OPTIONS"] = &Handler::handleOptions;
-//    map["DELETE"] = &Handler::handleDelete;
-//    map["BAD"] = &Handler::handleBadRequest;
+    std::map<std::string, ptr> method;
+    std::map<std::string, ptr> status;
+    std::map<std::string, std::string> MIMETypes;
 
-//    map["GET"] = &Dispatcher::GETStatus;
-//    map["HEAD"] = &Dispatcher::GETStatus;
-//    map["PUT"] = &Dispatcher::PUTStatus;
-//    map["POST"] = &Dispatcher::POSTStatus;
-//    map["CONNECT"] = &Dispatcher::CONNECTStatus;
-//    map["TRACE"] = &Dispatcher::TRACEStatus;
-//    map["OPTIONS"] = &Dispatcher::OPTIONSStatus;
-//    map["DELETE"] = &Dispatcher::DELETEStatus;
+    method["GET"] = &Dispatcher::GETMethod;
+    method["HEAD"] = &Dispatcher::HEADMethod;
+    method["PUT"] = &Dispatcher::PUTMethod;
+    method["POST"] = &Dispatcher::POSTMethod;
+    method["CONNECT"] = &Dispatcher::CONNECTMethod;
+    method["TRACE"] = &Dispatcher::TRACEMethod;
+    method["OPTIONS"] = &Dispatcher::OPTIONSMethod;
+    method["DELETE"] = &Dispatcher::DELETEMethod;
+    method["BAD"] = &Dispatcher::handlingBadRequest;
 
-//    MIMETypes[".txt"] = "text/plain";
-//    MIMETypes[".bin"] = "application/octet-stream";
-//    MIMETypes[".jpeg"] = "image/jpeg";
-//    MIMETypes[".jpg"] = "image/jpeg";
-//    MIMETypes[".html"] = "text/html";
-//    MIMETypes[".htm"] = "text/html";
-//    MIMETypes[".png"] = "image/png";
-//    MIMETypes[".bmp"] = "image/bmp";
-//    MIMETypes[".pdf"] = "application/pdf";
-//    MIMETypes[".tar"] = "application/x-tar";
-//    MIMETypes[".json"] = "application/json";
-//    MIMETypes[".css"] = "text/css";
-//    MIMETypes[".js"] = "application/javascript";
-//    MIMETypes[".mp3"] = "audio/mpeg";
-//    MIMETypes[".avi"] = "video/x-msvideo";
+    status["GET"] = &Dispatcher::GETStatus;
+    status["HEAD"] = &Dispatcher::GETStatus;
+    status["PUT"] = &Dispatcher::PUTStatus;
+    status["POST"] = &Dispatcher::POSTStatus;
+    status["CONNECT"] = &Dispatcher::CONNECTStatus;
+    status["TRACE"] = &Dispatcher::TRACEStatus;
+    status["OPTIONS"] = &Dispatcher::OPTIONSStatus;
+    status["DELETE"] = &Dispatcher::DELETEStatus;
+
+    MIMETypes[".txt"] = "text/plain";
+    MIMETypes[".bin"] = "application/octet-stream";
+    MIMETypes[".jpeg"] = "image/jpeg";
+    MIMETypes[".jpg"] = "image/jpeg";
+    MIMETypes[".html"] = "text/html";
+    MIMETypes[".htm"] = "text/html";
+    MIMETypes[".png"] = "image/png";
+    MIMETypes[".bmp"] = "image/bmp";
+    MIMETypes[".pdf"] = "application/pdf";
+    MIMETypes[".tar"] = "application/x-tar";
+    MIMETypes[".json"] = "application/json";
+    MIMETypes[".css"] = "text/css";
+    MIMETypes[".js"] = "application/javascript";
+    MIMETypes[".mp3"] = "audio/mpeg";
+    MIMETypes[".avi"] = "video/x-msvideo";
+}
+
+void    Dispatcher::execute(Client &client)
+{
+    (this->*map[client.req.method])(client);
 }
 
 void	Dispatcher::GETMethod(Client &client)
