@@ -17,6 +17,26 @@ namespace ft
 		return (str);
 	}
 
+	unsigned short ft_htons(unsigned short tmp)
+	{
+		unsigned short inp = (unsigned short)tmp;
+		unsigned short a = 0;
+		if (BYTE_ORDER == BIG_ENDIAN)
+			return (inp);
+		for (int i = 0; i < 2; i++)
+		{
+			a += (inp % 16) << ((i + 2) * 4);
+			inp /= 16;
+		}
+		for (int i = 0; i < 2; i++)
+		{
+			a += (inp % 16) << (i * 4);
+			inp /= 16;
+		}
+		return (a);
+	}
+
+
 	bool	isspace(int c)
 	{
 		if (c == '\t' || c == '\n' || c == '\r' || c == '\v' || c == '\f' ||
