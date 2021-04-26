@@ -1,47 +1,52 @@
 #ifndef DISPATCHER_HPP
 #define DISPATCHER_HPP
 
+#include <sstream>
+
 class Dispatcher
 {
     public:
-        void	        Dispatcher::GETMethod(Client &client);
-        void	        Dispatcher::HEADMethod(Client &client);
-        void	        Dispatcher::POSTMethod(Client &client);
-        void        	Dispatcher::PUTMethod(Client &client);
-        void        	Dispatcher::CONNECTMethod(Client &client);
-        void        	Dispatcher::TRACEMethod(Client &client);
-        void        	Dispatcher::OPTIONSMethod(Client &client);
-        void        	Dispatcher::DELETEMethod(Client &client);
-        void        	Dispatcher::handlingBadRequest(Client &client);
+        Dispatcher();
+        ~Dispatcher();
+        void            execute(Client &client);
 
     private:
+        // Dispatcher
+        void	        GETMethod(Client &client);
+        void	        HEADMethod(Client &client);
+        void	        POSTMethod(Client &client);
+        void        	PUTMethod(Client &client);
+        void        	CONNECTMethod(Client &client);
+        void        	TRACEMethod(Client &client);
+        void        	OPTIONSMethod(Client &client);
+        void        	DELETEMethod(Client &client);
+        void        	handlingBadRequest(Client &client);
+
         // DispatcherCGI
-        char        	**Dispatcher::setEnv(Client &client);
-        void        	Dispatcher::execCGI(Client &client);
-        void          	Dispatcher::parseCGIResult(Client &client);
+        char        	**setCGIEnv(Client &client);
+        void        	executeCGI(Client &client);
+        void          	parseCGIResult(Client &client);
 
         // DispatcherNegotiate
-        void        	Dispatcher::negotiate(Client &client);
-        void         	Dispatcher::parseAcceptLanguage(Client &client, std::multimap<std::string, std::string> &map);
-        void        	Dispatcher::parseAcceptCharset(Client &client, std::multimap<std::string, std::string> &map);
+        void        	negotiate(Client &client);
 
         // DispatcherStatusCode
-        int     		Dispatcher::setStatusCode(Client &client);
-        int     		Dispatcher::GETStatus(Client &client);
-        int     		Dispatcher::POSTStatus(Client &client);
-        int     		Dispatcher::PUTStatus(Client &client);
-        int     		Dispatcher::CONNECTStatus(Client &client);
-        int     		Dispatcher::TRACEStatus(Client &client);
-        int     		Dispatcher::OPTIONSStatus(Client &client);
-        int	        	Dispatcher::DELETEStatus(Client &client);
+        int     		setStatusCode(Client &client);
+        int     		GETStatus(Client &client);
+        int     		POSTStatus(Client &client);
+        int     		PUTStatus(Client &client);
+        int     		CONNECTStatus(Client &client);
+        int     		TRACEStatus(Client &client);
+        int     		OPTIONSStatus(Client &client);
+        int	        	DELETEStatus(Client &client);
 
         // DispatcherUtils
-        void			Dispatcher::createListing(Client &client);
-        void		    Dispatcher::createResponse(Client &client);
-        std::string		Dispatcher::decode64(const char *data);
-        std::string		Dispatcher::findType(Client &client);
-        void			Dispatcher::getErrorPage(Client &client);
-        std::string		Dispatcher::getLastModified(std::string path);
-
+        void			createListing(Client &client);
+        void		    createResponse(Client &client);
+        std::string		decode64(const char *data);
+        std::string		findType(Client &client);
+        void			getErrorPage(Client &client);
+        std::string		getLastModified(std::string path);
+        bool            checkCGI(Client &client);
 };
 #endif

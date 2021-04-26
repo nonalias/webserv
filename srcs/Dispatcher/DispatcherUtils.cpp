@@ -8,17 +8,66 @@ static const int B64index[256] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 
 void			Dispatcher::createListing(Client &client)
 {
+    DIR				*dir;
+    struct dirent	*cur;
 
+    close(client.read_fd);
+    client.read_fd = -1;
+    dir = opendir(client.conf["path"].c_str());
+    client.res.body = "<html>\n<body>\n";
+    client.res.body += "<h1>Directory listing</h1>\n";
+    while ((cur = readdir(dir)) != NULL)
+    {
+        if (cur->d_name[0] != '.')
+        {
+            client.res.body += "<a href=\"" + client.req.uri;
+            if (client.req.uri != "/")
+                client.res.body += "/";
+            client.res.body += cur->d_name;
+            client.res.body += "\">";
+            client.res.body += cur->d_name;
+            client.res.body += "</a><br>\n";
+        }
+    }
+    closedir(dir);
+    client.res.body += "</body>\n</html>\n";
 }
 
 void		    Dispatcher::createResponse(Client &client)
 {
-
 }
 
 std::string		Dispatcher::decode64(const char *data)
 {
+    while (*data != ' ')
+        data++;
+    data++;
+    unsigned int len = strlen(data);
+    unsigned char* p = (unsigned char*)data;
+    int pad = len > 0 && (len % 4 || p[len - 1] == '=');
+    const size_t L = ((len + 3) / 4 - pad) * 4;
+    std::string str(L / 4 * 3 + pad, '\0');
+    for (size_t i = 0, j = 0; i < L; i += 4)
+    {
+        int n = B64index[p[i]] << 18 | B64index[p[i + 1]] << 12 | B64index[p[i + 2]] << 6 | B64index[p[i + 3]];
+        str[j++] = n >> 16;
+        str[j++] = n >> 8 & 0xFF;
+        str[j++] = n & 0xFF;
+    }
+    if (pad)
+    {
+        int n = B64index[p[L]] << 18 | B64index[p[L + 1]] << 12;
+        str[str.size() - 1] = n >> 16;
 
+        if (len > L + 2 && p[L + 2] != '=')
+        {
+            n |= B64index[p[L + 2]] << 6;
+            str.push_back(n >> 8 & 0xFF);
+        }
+    }
+    if (str.back() == 0)
+        str.pop_back();
+    return (str);
 }
 
 std::string		Dispatcher::findType(Client &client)
@@ -34,4 +83,13 @@ void			Dispatcher::getErrorPage(Client &client)
 std::string		Dispatcher::getLastModified(std::string path)
 {
 
+}
+
+bool            Dispatcher::checkCGI(Client &client)
+{
+    if (client.conf.find("CGI") != client.conf.end() && client.req.uri.find(client.conf["CGI"]) != std::string::npos)
+            return true;
+    else if (client.conf.find("php") != client.conf.end() && client.req.uri.find(".php") != std::string::npos)
+            return true;
+    return false;
 }
