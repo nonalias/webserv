@@ -35,13 +35,23 @@ void			Dispatcher::createListing(Client &client)
 
 void		    Dispatcher::createResponse(Client &client)
 {
+    std::map<std::string, std::string>::const_iterator b;
+
+    client.response = client.res.version + " " + client.res.status_code + "\r\n";
+    b = client.res.headers.begin();
+    while (b != client.res.headers.end())
+    {
+        if (b->second != "")
+            client.response += b->first + ": " + b->second + "\r\n";
+        ++b;
+    }
+    client.response += "\r\n";
+    client.response += client.res.body;
+    client.res.clear();
 }
 
 std::string		Dispatcher::decode64(const char *data)
 {
-    while (*data != ' ')
-        data++;
-    data++;
     unsigned int len = strlen(data);
     unsigned char* p = (unsigned char*)data;
     int pad = len > 0 && (len % 4 || p[len - 1] == '=');
@@ -72,17 +82,43 @@ std::string		Dispatcher::decode64(const char *data)
 
 std::string		Dispatcher::findType(Client &client)
 {
+    std::string 	extension;
+    size_t			pos;
 
+    if (client.conf["path"].find_last_of('.') != std::string::npos)
+    {
+        pos = client.conf["path"].find('.');
+        extension = client.conf["path"].substr(pos, client.conf["path"].find('.', pos + 1) - pos);
+        if (MIMETypes.find(extension) != MIMETypes.end())
+            return (MIMETypes[extension]);
+        else
+            return (MIMETypes[".bin"]);
+    }
+    return ("");
 }
 
 void			Dispatcher::getErrorPage(Client &client)
 {
+    std::string		path;
 
+    path = client.conf["error"] + "/" + client.res.status_code.substr(0, 3) + ".html";	//
+    client.conf["path"] = path;
+    client.read_fd = open(path.c_str(), O_RDONLY);
 }
 
 std::string		Dispatcher::getLastModified(std::string path)
 {
+    char		buf[BUFFER_SIZE + 1];
+    int			ret;
+    struct tm	*tm;
+    struct stat	file_info;
 
+    if (lstat(path.c_str(), &file_info) == -1)
+        return ("");
+    tm = localtime(&file_info.st_mtime);
+    ret = strftime(buf, BUFFER_SIZE, "%a, %d %b %Y %T %Z", tm);
+    buf[ret] = '\0';
+    return (buf);
 }
 
 bool            Dispatcher::checkCGI(Client &client)

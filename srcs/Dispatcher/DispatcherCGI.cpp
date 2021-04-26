@@ -82,7 +82,7 @@ void		Dispatcher::executeCGI(Client &client)
     args[0] = strdup(path.c_str());
     args[1] = strdup(client.conf["path"].c_str());
     args[2] = NULL;
-    env = _helper.setEnv(client);
+    env = setCGIEnv(client);
     client.tmp_fd = open(TMP_PATH, O_WRONLY | O_CREAT, 0666);
     pipe(tubes);
     g_logger.log("executing CGI for " + client.ip + ":" + std::to_string(client.port), MED);

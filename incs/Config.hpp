@@ -8,28 +8,44 @@
 # include <map>
 # include <vector>
 # include <iostream>
+# include <dirent.h>
+# include <sys/stat.h>
 # include "Server.hpp"
 
-# define MAX_FD 256 - 20 // fd에서 20을 뺀 이유?
+#define MAX_FD 256 - 20
 
-class Config {
-    typedef std::map<std::string, std::string>  elmt;
-    typedef std::map<std::string, elmt>         config;
-public:
-    Config();
-    virtual ~Config();
+class Config
+{
+    typedef std::map<std::string, std::string> 	elmt;
+    typedef std::map<std::string, elmt>			config;
 
-    static void exit(int sig);
+    public:
+        Config();
+        ~Config();
 
-    void        parse(char *file, std::vector<Server> &servers);
-    void        init(fd_set *rSet, fd_set *wSet, fd_set *readSet, fd_set writeSet, timeval *timeout);
-    int         getMaxFd(std::vector<Server> &servers);
-    int         getOpenFd(std::vector<Server> &servers);
+        static void	exit(int sig);
+        void		parse(char *file, std::vector<Server> &servers);
+        void		init(fd_set *rSet, fd_set *wSet, fd_set *readSet, fd_set *writeSet, struct timeval *timeout);
+        void		getConf(Client &client, Request &req, std::vector<config> &conf);
+        void
 
-private:
-    std::string readFile(char *file);
-    void        getContent(std::string &buffer, std::string &content, std::string prec, size_t &nb_line, config &config);
+    class InvalidConfigFileException: public std::exception
+    {
+        private:
+            size_t						line;
+            std::string					error;
+
+            InvalidConfigFileException(void);
+
+        public:
+            InvalidConfigFileException(size_t d);
+            virtual ~InvalidConfigFileException(void) throw();
+            virtual const char			*what(void) const throw();
+    };
+
+    private:
+        std::string	readFile(char *file);
+        void		getContent(std::string &buffer, std::string &context, std::string prec, size_t &nb_line, config &config);
 };
 
-
-# endif;
+#endif

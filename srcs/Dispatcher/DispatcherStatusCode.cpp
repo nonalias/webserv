@@ -81,41 +81,115 @@ int			Dispatcher::POSTStatus(Client &client)
             errno = 0;
             fd = open(client.conf["path"].c_str(), O_RDONLY);
             if (fd == -1 && errno == ENOENT)
-                client.res.status_code = CREATED; // 생성되지 않았을텐데? CREATED를 넣네? 왜냐면 있든 없든 이따 create할건데 지금 체크해야하는건 새로 만들어지는건지 아님 기존거에 append되는건지이기 때문
+                client.res.status_code = CREATED;
             else if (fd != -1)
-                client.res.status_code = OK; // 오픈 성공해서 fd값 얻어왔으면 OK. 즉 이미 존재함
-            close(fd); // 방금 연 파일 닫아주고
-            client.write_fd = open(client.conf["path"].c_str(), O_WRONLY | O_APPEND | O_CREAT, 0666); // 이번엔 O_APPEND| O_CREAT플래그를 넣어서 이미 있으면 있는대로 연장해서 내용 써지고 없으면 만들어줄수있도록 open함
+                client.res.status_code = OK;
+            close(fd);
+            client.write_fd = open(client.conf["path"].c_str(), O_WRONLY | O_APPEND | O_CREAT, 0666);
             if (client.write_fd == -1)
-                client.res.status_code = INTERNALERROR; // 위 open이 실패하는건 예상치못한 내부적인 오류임. INTERNALERROR넣어줌
+                client.res.status_code = INTERNALERROR;
             else
                 return (1);
         }
     }
-    return (0); // status_code가 NOTALLOWED, UNAUTHORIZED, REQTOOLARGE인경우 0 리턴
+    return (0);
 }
 
 int			Dispatcher::PUTStatus(Client &client)
 {
+    int 		fd;
+    struct stat	info;
+    int			save_err;
 
+
+    if (client.res.status_code == OK && client.conf.find("max_body") != client.conf.end()
+        && client.req.body.size() > (unsigned long)atoi(client.conf["max_body"].c_str()))
+        client.res.status_code = REQTOOLARGE;
+    else if (client.res.status_code == OK)
+    {
+        errno = 0;
+        fd = open(client.conf["path"].c_str(), O_RDONLY);
+        save_err = errno;
+        fstat(fd, &info);
+        if (S_ISDIR(info.st_mode))
+            client.res.status_code = NOTFOUND;
+        else
+        {
+            if (fd == -1 && save_err == ENOENT)
+                client.res.status_code = CREATED;
+            else if (fd == -1)
+            {
+                client.res.status_code = INTERNALERROR;
+                return (0);
+            }
+            else
+            {
+                client.res.status_code = NOCONTENT;
+                if (close(fd) == -1)
+                {
+                    client.res.status_code = INTERNALERROR;
+                    return (0);
+                }
+            }
+            client.write_fd = open(client.conf["path"].c_str(), O_WRONLY | O_CREAT, 0666);
+            if (client.write_fd == -1)
+            {
+                client.res.status_code = INTERNALERROR;
+                return (0);
+            }
+            return (1);
+        }
+    }
+    return (0);
 }
 
 int			Dispatcher::CONNECTStatus(Client &client)
 {
-
+    client.res.version = "HTTP/1.1";
+    client.res.status_code = NOTIMPLEMENTED;
+    return (0);
 }
 
 int			Dispatcher::TRACEStatus(Client &client)
 {
-
+    client.res.version = "HTTP/1.1";
+    if (client.conf["methods"].find(client.req.method) == std::string::npos)
+    {
+        client.res.status_code = NOTALLOWED;
+        return (0);
+    }
+    else
+    {
+        client.res.status_code = OK;
+        return (1);
+    }
 }
 
 int			Dispatcher::OPTIONSStatus(Client &client)
 {
-
+    client.res.version = "HTTP/1.1";
+    client.res.status_code = NOCONTENT;
+    return (1);
 }
 
 int			Dispatcher::DELETEStatus(Client &client)
 {
+    int 		fd;
+    struct stat	info;
+    int			save_err;
 
+    if (client.res.status_code == OK)
+    {
+        errno = 0;
+        fd = open(client.conf["path"].c_str(), O_RDONLY);
+        save_err = errno;
+        fstat(fd, &info);
+        if ((fd == -1 && save_err == ENOENT) || S_ISDIR(info.st_mode))
+            client.res.status_code = NOTFOUND;
+        else if (fd == -1)
+            client.res.status_code = INTERNALERROR;
+        else
+            return (1);
+    }
+    return (0);
 }
