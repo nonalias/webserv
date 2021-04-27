@@ -13,6 +13,9 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <netinet/in.h>
+#include "Client.hpp"
+#include "statusCode.h"
+#include "Parser.hpp"
 
 #define TIMEOUT 10
 #define RETRY	"25"
@@ -33,13 +36,24 @@ class Server
         fd_set					*_rSet;
         fd_set					*_wSet;
         std::vector<config>		_conf;
+        Parser                  _parser;
 
     public:
         Server();
         ~Server();
 
+		std::vector<Client*>	_clients;
+		std::queue<int>			_tmp_clients;
+
         // test method
         void print_conf(void);
+		int		getFd() const;
+        int getMaxFd();
+        int getOpenFd();
+        void refuseConnection();
+        void acceptConnection();
+        void send503(int fd);
+        int readRequest(std::vector<Client*>::iterator it);
 
     class		ServerException: public std::exception
     {

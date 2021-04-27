@@ -2,6 +2,11 @@
 # define UTILS_H
 
 # include <string>
+# include <sys/time.h>
+#include <string>
+#include <iostream>
+#include "Config.hpp"
+# include "Server.hpp"
 
 namespace ft
 {
@@ -12,6 +17,8 @@ namespace ft
 	int			getpower(int nb, int power);
 	std::string	getDate();
 	void		freeAll(char **args, char **env);
+	int			getMaxFd(std::vector<Server> &servers);
+	int			getOpenFd(std::vector<Server> &servers);
 }
 
 #endif

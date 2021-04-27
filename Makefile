@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: hjung <hjung@student.42seoul.kr>           +#+  +:+       +#+         #
+#    By: ijuhae <ijuhae@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2020/06/30 21:31:46 by lmartin           #+#    #+#              #
-#    Updated: 2021/04/17 16:26:39 by hjung            ###   ########.fr        #
+#    Created: 2021/04/27 14:54:02 by ijuhae            #+#    #+#              #
+#    Updated: 2021/04/27 16:43:43 by ijuhae           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -65,7 +65,10 @@ SRC			=	Config.cpp \
 				Server.cpp \
 				utils.cpp \
 				main.cpp \
-				ServerTest.cpp
+				ServerTest.cpp \
+				Logger.cpp \
+				Client.cpp \
+				Parser.cpp
 
 
 SRCS		=	$(SRC)
