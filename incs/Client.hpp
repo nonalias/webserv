@@ -11,7 +11,7 @@
 //#include <string>		iostream에 내장되어있기때문에 없어도 괜찮을듯
 #include <map>
 
-// #include "messages.h"  request, response구조체 가져옴.
+#include "messages.h"  // request, response구조체 가져옴.
 // #include "Logger.hpp"
 
 #define BUFFER_SIZE 32768 // 왜 32768,,?
@@ -27,6 +27,9 @@ class Client
 	// Server, Handler, Helper 클래스에게 private정보 접근권한 열어줌
 
 	typedef std::map<std::string, std::string> t_conf; // 문자열:문자열 맵 t_conf
+    typedef std::map<std::string, std::string> 	elmt;
+    typedef std::map<std::string, elmt>			config;
+		
 	struct t_chunk // 길이, done, found여부 담는 구조체
 	{
 		unsigned int len;
@@ -80,6 +83,8 @@ public:
 	void setFileToRead(bool state); // read_fd -1 아닌지 확인, state에 따라 FD_SET, FD_CLR
 	void setFileToWrite(bool state); // write_fd -1 아닌지 확인, state에 따라 FD_SET, FD_CLR
 	void setToStandBy(); // status 를 standby로, setReadState, rBuf 0으로 memset. rbuf는 일단 client.cpp에선 쓰이는곳 없음.
+	void getConf(Client &client, Request &req, std::vector<config> &conf);
+
 };
 
-#endif;
+#endif

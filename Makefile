@@ -50,7 +50,7 @@ RM			=	rm -rf
 
 # DIRECTORIES #
 
-DIR_HEADERS =	./includes/
+DIR_HEADERS =	./incs/
 
 DIR_SRCS	=	./srcs/
 
@@ -88,9 +88,9 @@ all:			$(NAME) $(DIR_CONFIGS)$(CONFIG)
 # VARIABLES RULES #
 
 $(NAME):		$(OBJS)
-				printf "\033[2K\r$(_GREEN) All files compiled into '$(DIR_OBJS)'. $(_END)✅\n"
+				@printf "\033[2K\r$(_GREEN) All files compiled into '$(DIR_OBJS)'. $(_END)✅\n"
 				$(CC) $(CC_FLAGS) -I $(DIR_HEADERS) $(OBJS) -o $(NAME)
-				printf "$(_GREEN) Executable '$(NAME)' created. $(_END)✅\n"
+				@printf "$(_GREEN) Executable '$(NAME)' created. $(_END)✅\n"
 
 # COMPILED_SOURCES RULES #
 
