@@ -1,7 +1,6 @@
 #include "Parser.hpp"
 # include "utils.h"
 
-
 Parser::Parser()
 {
 
@@ -22,11 +21,11 @@ bool			Parser::checkSyntax(const Request &req)
 		&& req.method != "CONNECT" && req.method != "TRACE"
 		&& req.method != "OPTIONS" && req.method != "DELETE")
 		return (false);
-	if (req.method != "OPTIONS" && req.uri[0] != '/') //OPTIONS can have * as uri option OPTIONS 만 / 가 uri로 안 와도 된다. 나머지는 모두 /부터 시작해야한다.
+	if (req.method != "OPTIONS" && req.uri[0] != '/')
 		return (false);
-	if (req.version != "HTTP/1.1\r" && req.version != "HTTP/1.1") // version 규약
+	if (req.version != "HTTP/1.1\r" && req.version != "HTTP/1.1")
 		return (false);
-	if (req.headers.find("Host") == req.headers.end()) // headers에 Host가 없으면
+	if (req.headers.find("Host") == req.headers.end())
 		return (false);
 	return (true);
 }
@@ -75,7 +74,7 @@ void			Parser::getClientConf(Client &client, Request &req, std::vector<config> &
         client.conf = elmt;
         client.conf["path"] = req.uri.substr(0, req.uri.find("?"));
         if (elmt.find("root") != elmt.end())
-            client.conf["path"].replace(0, tmp.size(), elmt["root"]);
+            client.conf["path"] = elmt["root"];
     }
     for (std::map<std::string, std::string>::iterator it(to_parse["server|"].begin()); it != to_parse["server|"].end(); ++it)
     {
@@ -126,20 +125,16 @@ void			Parser::parseRequest(Client &client, std::vector<config> &conf)
         request.valid = checkSyntax(request);
     if (request.uri != "*" || request.method != "OPTIONS")
         getClientConf(client, request, conf);
-    if (request.valid)
-    {
-        if (client.conf["root"][0] != '\0')
-            chdir(client.conf["root"].c_str());
-        if (request.method == "POST" || request.method == "PUT")
-            client.status = Client::BODYPARSING;
-        else
-            client.status = Client::CODE;
-    }
-    else
-    {
-        request.method = "BAD";
-        client.status = Client::CODE;
-    }
+	client.status = Client::CODE;
+	if (request.valid)
+	{
+		if (client.conf["root"][0] != '\0')
+			chdir(client.conf["root"].c_str());
+		if (request.method == "POST" || request.method == "PUT")
+			client.status = Client::BODYPARSING;
+	}
+	else
+		request.method = "BAD";
     client.req = request;
     tmp = client.rBuf;
     tmp = tmp.substr(tmp.find("\r\n\r\n") + 4);
@@ -172,7 +167,7 @@ bool			Parser::parseHeaders(std::string &buf, Request &req)
                 return (false);
             }
             req.headers[key] = value;
-            req.headers[key].pop_back(); //remove '\r'
+            req.headers[key].pop_back();
         }
         else
         {
@@ -187,27 +182,27 @@ void			Parser::getBody(Client &client)
 {
 	unsigned int	bytes;
 
-	if (client.chunk.len == 0) // 길이가 0이면
-		client.chunk.len = atoi(client.req.headers["Content-Length"].c_str()); // client.req.headers[Content-Length]의 value를 숫자로 치환.
-	if (client.chunk.len < 0) // 0보다 작으면 BAD
+	if (client.chunk.len == 0)
+		client.chunk.len = atoi(client.req.headers["Content-Length"].c_str());
+	if (client.chunk.len < 0)
 	{
 		client.req.method = "BAD";
 		client.status = Client::CODE;
 		return ;
 	}
-	bytes = strlen(client.rBuf); // rBuf 길이
-	if (bytes >= client.chunk.len) // rBuf길이가 Content-Length보다 길면 읽을 만큼만 client.req.body에 받아옴
+	bytes = strlen(client.rBuf);
+	if (bytes >= client.chunk.len)
 	{
-		memset(client.rBuf + client.chunk.len, 0, BUFFER_SIZE - client.chunk.len); // client.chunk.len 뒤의 rBuf를 다 초기화
-		client.req.body += client.rBuf; // rBuf를 넣어줌
-		client.chunk.len = 0; // 초기화
+		memset(client.rBuf + client.chunk.len, 0, BUFFER_SIZE - client.chunk.len);
+		client.req.body += client.rBuf;
+		client.chunk.len = 0;
 		client.status = Client::CODE;
 	}
-	else // rBuf길이보다 읽어야 할 길이가 길면
+	else
 	{
-		client.chunk.len -= bytes; // client.chunk.len에서 rBuf의 길이만큼 뺌 = 못 읽는 문자열 길이 -> 이거 초기화를 왜 안 시킬까? 다음 getBody할 때 이 길이만큼 받아올 수 있도록 하기 위해.
-		client.req.body += client.rBuf; // rBuf 전체를 client.req.body에 넣어줌
-		memset(client.rBuf, 0, BUFFER_SIZE + 1); // 메모리 초기화
+		client.chunk.len -= bytes;
+		client.req.body += client.rBuf;
+		memset(client.rBuf, 0, BUFFER_SIZE + 1);
 	}
 }
 
@@ -218,15 +213,11 @@ int				Parser::findLen(Client &client)
 	std::string		tmp;
 
 	to_convert = client.rBuf;
-	to_convert = to_convert.substr(0, to_convert.find("\r\n"));	//첫 번째 문장 파싱
+	to_convert = to_convert.substr(0, to_convert.find("\r\n"));
 	while (to_convert[0] == '\n')
-		to_convert.erase(to_convert.begin());	//공백 라인 제거
-	if (to_convert.size() == 0)
-		len = 0;
-	else
-		len = fromHexa(to_convert.c_str());		//16진수 문자열 -> 10진수화
-	len = fromHexa(to_convert.c_str());			//???
-	tmp = client.rBuf;							//다음 문장으로 이동
+		to_convert.erase(to_convert.begin());
+	len = fromHexa(to_convert.c_str());
+	tmp = client.rBuf;
 	tmp = tmp.substr(tmp.find("\r\n") + 2);
 	strcpy(client.rBuf, tmp.c_str());
 	return (len);
@@ -246,19 +237,19 @@ int				Parser::fromHexa(const char *nb)
 		int j = 0;
 		while (base[j])
 		{
-			if (nb[i] == base[j]) // "0123456789abcdef" 중 일치하는 문자가 있을 경우
+			if (nb[i] == base[j])
 			{
 				index = j;
 				break ;
 			}
 			j++;
 		}
-		if (j == 16) // "0123456789abcdef" 중 일치하는 문자가 없었을 경우, 즉 대문자일 경우
+		if (j == 16)
 		{
 			j = 0;
 			while (base2[j])
 			{
-				if (nb[i] == base2[j]) // "0123456789ABCDEF" 중 일치하는 문자가 있을 경우
+				if (nb[i] == base2[j])
 				{
 					index = j;
 					break ;
@@ -276,41 +267,41 @@ void			Parser::fillBody(Client &client)
 {
 	std::string		tmp;
 
-	tmp = client.rBuf; // chunk_size\r\n(client.chunk.len) 다음 rBuf
-	if (tmp.size() > client.chunk.len) // read 버퍼의 크기가 chunk 길이보다 길 때
+	tmp = client.rBuf;
+	if (tmp.size() > client.chunk.len)
 	{
-		client.req.body += tmp.substr(0, client.chunk.len); // read 버퍼의 내용을 chunk 길이만큼 request body에 붙여줌
+		client.req.body += tmp.substr(0, client.chunk.len);
 		tmp = tmp.substr(client.chunk.len + 1);
 		memset(client.rBuf, 0, BUFFER_SIZE + 1);
-		strcpy(client.rBuf, tmp.c_str()); // request body에 붙인 이후 내용을 read 버퍼에 복사함
+		strcpy(client.rBuf, tmp.c_str());
 		client.chunk.len = 0;
 		client.chunk.found = false;
 	}
 	else
 	{
-		client.req.body += tmp; // read 버퍼의 내용을 request body에 붙여줌
-		client.chunk.len -= tmp.size(); // chunk 길이를 read 버퍼의 사이즈만큼 줄여줌
+		client.req.body += tmp;
+		client.chunk.len -= tmp.size();
 		memset(client.rBuf, 0, BUFFER_SIZE + 1);
 	}
 }
 
 void			Parser::dechunkBody(Client &client)
 {
-	if (strstr(client.rBuf, "\r\n") && client.chunk.found == false) // rBuf에 \r\n이 있고 client.chunk.found가 false면
+	if (strstr(client.rBuf, "\r\n") && client.chunk.found == false)
 	{
-		client.chunk.len = findLen(client); // chunk_size 문자열로 되어있는 것을 실제 숫자로 변환. client의 rBuf는 \r\n 다음으로 이동.
-		if (client.chunk.len == 0) // 길이가 0이면 끝.
+		client.chunk.len = findLen(client);
+		if (client.chunk.len == 0)
 			client.chunk.done = true;
-		else // 길이가 있으면 찾음을 알림
+		else
 			client.chunk.found = true;
 	}
-	else if (client.chunk.found == true) // /r/n을 찾으면
-		fillBody(client); // client.req.body에 내용을 채움 client.rBuf는 읽은 만큼 넘어감.
-	if (client.chunk.done) // chunk 완료. client.chunk.len = 0
+	else if (client.chunk.found == true)
+		fillBody(client);
+	if (client.chunk.done)
 	{
-		memset(client.rBuf, 0, BUFFER_SIZE + 1); // 초기화
+		memset(client.rBuf, 0, BUFFER_SIZE + 1);
 		client.status = Client::CODE;
-		client.chunk.found = false; // chunk가 끝났으므로 초기화
+		client.chunk.found = false;
 		client.chunk.done = false;
 		return ;
 	}
@@ -322,13 +313,12 @@ void			Parser::parseBody(Client &client)
         getBody(client);
     else if (client.req.headers["Transfer-Encoding"] == "chunked")
         dechunkBody(client);
-    else
-    {
-        client.req.method = "BAD";
-        client.status = Client::CODE;
-    }
-    if (client.status == Client::CODE)
-        g_logger.log("body size parsed from " + client.ip + ":" + std::to_string(client.port) + ": " + std::to_string(client.req.body.size()), MED);
+	else
+	{
+		client.req.method = "BAD";
+		client.status = Client::CODE;
+		g_logger.log("body size parsed from " + client.ip + ":" + std::to_string(client.port) + ": " + std::to_string(client.req.body.size()), MED);
+	}
 }
 
 void			Parser::parseAccept(Client &client, std::multimap<double, std::string> &map, std::string Accept)

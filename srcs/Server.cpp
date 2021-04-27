@@ -44,8 +44,52 @@ int		Server::getOpenFd()
 		if (client->write_fd != -1)
 			nb += 1;
 	}
-	nb += _tmp_clients.size();
+	nb += _503_clients.size();
 	return (nb);
+}
+
+void	Server::init(fd_set *readSet, fd_set *writeSet, fd_set *rSet, fd_set *wSet)
+{
+	int				yes = 1;
+	std::string		to_parse;
+	std::string		host;
+
+	_readSet = readSet;
+	_writeSet = writeSet;
+	_wSet = wSet;
+	_rSet = rSet;
+
+	to_parse = _conf[0]["server|"]["listen"];
+	errno = 0;
+	if ((_fd = socket(PF_INET, SOCK_STREAM, 0)) == -1)
+		throw(ServerException("socket()", std::string(strerror(errno))));
+    if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+		throw(ServerException("setsockopt()", std::string(strerror(errno))));
+    if (to_parse.find(":") != std::string::npos)
+    {
+    	host = to_parse.substr(0, to_parse.find(":"));
+    	if ((_port = atoi(to_parse.substr(to_parse.find(":") + 1).c_str())) < 0)
+			throw(ServerException("Wrong port", std::to_string(_port)));
+		_info.sin_addr.s_addr = inet_addr(host.c_str());
+		_info.sin_port = htons(_port);
+    }
+    else
+    {
+		_info.sin_addr.s_addr = INADDR_ANY;
+		if ((_port = atoi(to_parse.c_str())) < 0)
+			throw(ServerException("Wrong port", std::to_string(_port)));
+		_info.sin_port = htons(_port);
+    }
+	_info.sin_family = AF_INET;
+	if (bind(_fd, (struct sockaddr *)&_info, sizeof(_info)) == -1)
+		throw(ServerException("bind()", std::string(strerror(errno))));
+    if (listen(_fd, 256) == -1)
+		throw(ServerException("listen()", std::string(strerror(errno))));
+	if (fcntl(_fd, F_SETFL, O_NONBLOCK) == -1)
+		throw(ServerException("fcntl()", std::string(strerror(errno))));
+	FD_SET(_fd, _rSet);
+    _maxFd = _fd;
+    g_logger.log("[" + std::to_string(_port) + "] " + "listening...", LOW);
 }
 
 void	Server::refuseConnection()
@@ -56,11 +100,11 @@ void	Server::refuseConnection()
 
 	errno = 0;
 	len = sizeof(struct sockaddr);
-	if ((fd = accept(_fd, (struct sockaddr *)&info, &len)) == -1)  // accept 함수호출로 클라이언트의 연결요청을 수락
+	if ((fd = accept(_fd, (struct sockaddr *)&info, &len)) == -1)
 		throw(ServerException("accept()", std::string(strerror(errno))));
-	if (_tmp_clients.size() < 10)
+	if (_503_clients.size() < _503_CLIENTS_SIZE)
 	{
-		_tmp_clients.push(fd);
+		_503_clients.push(fd);
 		FD_SET(fd, _wSet);
 	}
 	else
@@ -77,7 +121,7 @@ void	Server::acceptConnection()
 	memset(&info, 0, sizeof(struct sockaddr));
 	errno = 0;
 	len = sizeof(struct sockaddr);
-	if ((fd = accept(_fd, (struct sockaddr *)&info, &len)) == -1)  // accept 함수호출로 클라이언트의 연결요청을 수락
+	if ((fd = accept(_fd, (struct sockaddr *)&info, &len)) == -1)
 		throw(ServerException("accept()", std::string(strerror(errno))));
 	if (fd > _maxFd)
 		_maxFd = fd;
@@ -90,7 +134,6 @@ void	Server::send503(int fd)
 {
 	Response		response;
 	std::string		str;
-	int				ret = 0;
 
 	response.version = "HTTP/1.1";
 	response.status_code = UNAVAILABLE;
@@ -109,14 +152,12 @@ void	Server::send503(int fd)
 	}
 	str += "\r\n";
 	str += response.body;
-	ret = write(fd, str.c_str(), str.size());
-	if (ret >= -1)
-	{
-		close(fd);
-		FD_CLR(fd, _wSet);
-		_tmp_clients.pop();
-	}
-	g_logger.log("[" + std::to_string(_port) + "] " + "connection refused, sent 503", LOW);  // stdout에 503에러 log 전달
+	write(fd, str.c_str(), str.size());
+	write(fd, str.c_str(), str.size());
+	close(fd);
+	FD_CLR(fd, _wSet);
+	_503_clients.pop();
+	g_logger.log("[" + std::to_string(_port) + "] " + "connection refused, sent 503", LOW);
 }
 
 int		Server::readRequest(std::vector<Client*>::iterator it)
@@ -125,10 +166,18 @@ int		Server::readRequest(std::vector<Client*>::iterator it)
 	int			ret;
 	Client		*client = NULL;
 	std::string	log;
+	char		*tmp;
 
 	client = *it;
 	bytes = strlen(client->rBuf);
-	ret = read(client->fd, client->rBuf + bytes, BUFFER_SIZE - bytes);
+	if (bytes > 0)
+	{
+			tmp = (char *)malloc(sizeof(char) * (bytes + BUFFER_SIZE + 1));
+			strcpy(tmp, client->rBuf);
+			free(client->rBuf);
+			client->rBuf = tmp;
+	}
+	ret = read(client->fd, client->rBuf + bytes, BUFFER_SIZE);
 	bytes += ret;
 	if (ret > 0)
 	{

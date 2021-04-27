@@ -125,7 +125,7 @@ c == ' ')
 
 		for (std::vector<Server>::iterator it(servers.begin()); it != servers.end(); ++it)
 		{
-			fd = it->getMaxFd();  // 한개서버의 파일 디스크립터의 최대값
+			fd = it->getMaxFd();
 			if (fd > max)
 				max = fd;
 		}
@@ -138,11 +138,12 @@ c == ' ')
 
 		for (std::vector<Server>::iterator it(servers.begin()); it != servers.end(); ++it)
 		{
-			nb += 1;  // socket 함수로 서버를 생성할때 생기는 fd(+1)
-			nb += it->getOpenFd();  // 해당 서버와 연결된 클라이언트의 열려있는 fd만큼 +
+			nb += 1;
+			nb += it->getOpenFd();
 		}
 		return (nb);
 	}
+
 	int		getpower(int nb, int power)
 	{
 		if (power < 0)
