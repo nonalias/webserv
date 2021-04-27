@@ -6,8 +6,8 @@ void			Dispatcher::negotiate(Client &client)
     std::multimap<double, std::string> 	        charsetMap;
 
     int             tmp_fd = -1;
-    int             tmp_q = 0;
-    std::string		tmp_path;
+    double          tmp_q = 0;
+    std::string     tmp_path;
     std::string     tmp_ext;
 
     int				fd = -1;
@@ -36,6 +36,7 @@ void			Dispatcher::negotiate(Client &client)
                             client.res.headers["Content-Language"] = it->second;
                             tmp_q =it->first * it2->first;
                             fd = tmp_fd;
+                            tmp_fd = -1;
                             path = tmp_path;
                             ext = tmp_ext;
                             break ;
@@ -44,7 +45,7 @@ void			Dispatcher::negotiate(Client &client)
                             close(tmp_fd);
                     }
                     tmp_ext = it2->second + "." + it->second;
-                    tmp_path = client.conf["savedpath"] + "." + ext;
+                    tmp_path = client.conf["savedpath"] + "." + tmp_ext;
                     tmp_fd = open(tmp_path.c_str(), O_RDONLY);
                     if (tmp_fd != -1)
                     {
@@ -53,6 +54,7 @@ void			Dispatcher::negotiate(Client &client)
                             client.res.headers["Content-Language"] = it->second;
                             tmp_q = it->first * it2->first;
                             fd = tmp_fd;
+                            tmp_fd = -1;
                             path = tmp_path;
                             ext = tmp_ext;
                             break;
@@ -63,7 +65,7 @@ void			Dispatcher::negotiate(Client &client)
                 }
             }
             tmp_ext = it->second;
-            tmp_path = client.conf["savedpath"] + "." + ext;
+            tmp_path = client.conf["savedpath"] + "." + tmp_ext;
             tmp_fd = open(tmp_path.c_str(), O_RDONLY);
             if (tmp_fd != -1)
             {
@@ -72,21 +74,23 @@ void			Dispatcher::negotiate(Client &client)
                     client.res.headers["Content-Language"] = it->second;
                     tmp_q = it->first;
                     fd = tmp_fd;
+                    tmp_fd = -1;
                     path = tmp_path;
                     ext = tmp_ext;
+                    break;
                 }
                 else
                     close(tmp_fd);
             }
         }
     }
-    else if (languageMap.empty())
+    if (languageMap.empty())
     {
         if (!charsetMap.empty())
         {
             for (std::multimap<double, std::string>::reverse_iterator it2(charsetMap.rbegin()); it2 != charsetMap.rend(); ++it2)
             {
-                ext = it2->second;
+                tmp_ext = it2->second;
                 tmp_path = client.conf["savedpath"] + "." + it2->second;
                 tmp_fd = open(tmp_path.c_str(), O_RDONLY);
                 if (tmp_fd != -1)
@@ -95,6 +99,7 @@ void			Dispatcher::negotiate(Client &client)
                     {
                         tmp_q = it2->first;
                         fd = tmp_fd;
+                        tmp_fd = -1;
                         path = tmp_path;
                         ext = tmp_ext;
                         break ;

@@ -118,8 +118,8 @@ void			Parser::parseAccept(Client &client, std::multimap<double, std::string> &m
         }
         tmp2 << tmp;
         tmp2 >> q;
-        if (to_parse[i])
-            ++i;
+        while (to_parse[i] == ',' || to_parse[i] == ' ')
+            i++;
         std::pair<double, std::string>	pair(q, language);
         map.insert(pair);
     }
