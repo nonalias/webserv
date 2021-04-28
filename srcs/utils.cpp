@@ -1,7 +1,8 @@
-#include <string>
-#include <iostream>
-#include "Config.hpp"
-#include "Server.hpp"
+// #include <string>
+// #include <iostream>
+// #include "Config.hpp"
+// #include "Server.hpp"
+#include "utils.h"
 
 namespace ft
 {
@@ -102,4 +103,54 @@ c == ' ')
 		}
 		free(env);
 	}
+
+	std::string		getDate()
+	{
+		struct timeval	time;
+		struct tm		*tm;
+		char			buf[BUFFER_SIZE + 1];
+		int				ret;
+
+		gettimeofday(&time, NULL);
+		tm = localtime(&time.tv_sec);
+		ret = strftime(buf, BUFFER_SIZE, "%a, %d %b %Y %T %Z", tm);
+		buf[ret] = '\0';
+		return (buf);
+	}
+
+	int	getMaxFd(std::vector<Server> &servers)
+	{
+		int		max = 0;
+		int		fd;
+
+		for (std::vector<Server>::iterator it(servers.begin()); it != servers.end(); ++it)
+		{
+			fd = it->getMaxFd();
+			if (fd > max)
+				max = fd;
+		}
+		return (max);
+	}
+
+	int	getOpenFd(std::vector<Server> &servers)
+	{
+		int		nb = 0;
+
+		for (std::vector<Server>::iterator it(servers.begin()); it != servers.end(); ++it)
+		{
+			nb += 1;
+			nb += it->getOpenFd();
+		}
+		return (nb);
+	}
+
+	int		getpower(int nb, int power)
+	{
+		if (power < 0)
+			return (0);
+		if (power == 0)
+			return (1);
+		return (nb * getpower(nb, power - 1));
+	}
 }
+

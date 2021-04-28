@@ -11,22 +11,28 @@
 //#include <string>		iostream에 내장되어있기때문에 없어도 괜찮을듯
 #include <map>
 
-// #include "messages.h"  request, response구조체 가져옴.
-// #include "Logger.hpp"
+#include "messages.h"  // request, response구조체 가져옴.
+#include "Logger.hpp"
+#include "Parser.hpp"
 
 #define BUFFER_SIZE 32768 // 왜 32768,,?
 #define TMP_PATH "/tmp/cgi.tmp" // cgi.tmp파일로 테스트용인가? 깃헙파일에는 없음
 
-// extern Logger g_logger;  로그찍어주는거? 두고
+extern Logger g_logger; // 로그찍어주는거? 두고
+
 
 class Client
 {
 	friend class Server;
-	friend class Handler;
-	friend class Helper;
+	// friend class Handler;
+	// friend class Helper;
 	// Server, Handler, Helper 클래스에게 private정보 접근권한 열어줌
+	friend class Parser;
 
 	typedef std::map<std::string, std::string> t_conf; // 문자열:문자열 맵 t_conf
+    typedef std::map<std::string, std::string> 	elmt;
+    typedef std::map<std::string, elmt>	config;
+
 	struct t_chunk // 길이, done, found여부 담는 구조체
 	{
 		unsigned int len;
@@ -63,8 +69,8 @@ private:
 	char *rBuf;
 	fd_set *rSet;
 	fd_set *wSet;
-	// Request req;
-	// Response res;
+	Request req;
+	Response res;
 	std::string ip; // 클라이언트 객체 생성시 inet_ntoa(info.sin_addr) 내용 받음
 	std::string last_date; // 클라이언트 객체 생성시 ft::getDate() 내용 받음
 	std::string response; //
@@ -80,6 +86,8 @@ public:
 	void setFileToRead(bool state); // read_fd -1 아닌지 확인, state에 따라 FD_SET, FD_CLR
 	void setFileToWrite(bool state); // write_fd -1 아닌지 확인, state에 따라 FD_SET, FD_CLR
 	void setToStandBy(); // status 를 standby로, setReadState, rBuf 0으로 memset. rbuf는 일단 client.cpp에선 쓰이는곳 없음.
+
+	char *getRBuf(void);
 };
 
-#endif;
+#endif

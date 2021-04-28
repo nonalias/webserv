@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: hjung <hjung@student.42seoul.kr>           +#+  +:+       +#+         #
+#    By: ijuhae <ijuhae@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2020/06/30 21:31:46 by lmartin           #+#    #+#              #
-#    Updated: 2021/04/17 16:26:39 by hjung            ###   ########.fr        #
+#    Created: 2021/04/27 14:54:02 by ijuhae            #+#    #+#              #
+#    Updated: 2021/04/27 16:43:43 by ijuhae           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -50,7 +50,7 @@ RM			=	rm -rf
 
 # DIRECTORIES #
 
-DIR_HEADERS =	./includes/
+DIR_HEADERS =	./incs/
 
 DIR_SRCS	=	./srcs/
 
@@ -65,7 +65,10 @@ SRC			=	Config.cpp \
 				Server.cpp \
 				utils.cpp \
 				main.cpp \
-				ServerTest.cpp
+				ServerTest.cpp \
+				Logger.cpp \
+				Client.cpp \
+				Parser.cpp
 
 
 SRCS		=	$(SRC)
@@ -88,9 +91,9 @@ all:			$(NAME) $(DIR_CONFIGS)$(CONFIG)
 # VARIABLES RULES #
 
 $(NAME):		$(OBJS)
-				printf "\033[2K\r$(_GREEN) All files compiled into '$(DIR_OBJS)'. $(_END)✅\n"
+				@printf "\033[2K\r$(_GREEN) All files compiled into '$(DIR_OBJS)'. $(_END)✅\n"
 				$(CC) $(CC_FLAGS) -I $(DIR_HEADERS) $(OBJS) -o $(NAME)
-				printf "$(_GREEN) Executable '$(NAME)' created. $(_END)✅\n"
+				@printf "$(_GREEN) Executable '$(NAME)' created. $(_END)✅\n"
 
 # COMPILED_SOURCES RULES #
 

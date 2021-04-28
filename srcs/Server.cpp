@@ -1,5 +1,5 @@
-#include "utils.h"
 #include "Server.hpp"
+#include "utils.h"
 
 Server::Server() : _fd(-1), _maxFd(-1), _port(-1)
 {
@@ -11,9 +11,206 @@ Server::~Server()
 
 }
 
+int		Server::getFd() const
+{
+	return (_fd);
+}
+
+int		Server::getMaxFd()
+{
+	Client	*client;
+	for (std::vector<Client*>::iterator it(_clients.begin()); it != _clients.end(); ++it)
+	{
+		client = *it;
+		if (client->read_fd > _maxFd)
+			_maxFd = client->read_fd;
+		if (client->write_fd > _maxFd)
+			_maxFd = client->write_fd;
+	}
+	return (_maxFd);
+}
+
+int		Server::getOpenFd()
+{
+	int 	nb = 0;
+	Client	*client;
+
+	for (std::vector<Client*>::iterator it(_clients.begin()); it != _clients.end(); ++it)
+	{
+		client = *it;
+		nb += 1;
+		if (client->read_fd != -1)
+			nb += 1;
+		if (client->write_fd != -1)
+			nb += 1;
+	}
+	nb += _503_clients.size();
+	return (nb);
+}
+
+void	Server::init(fd_set *readSet, fd_set *writeSet, fd_set *rSet, fd_set *wSet)
+{
+	int				yes = 1;
+	std::string		to_parse;
+	std::string		host;
+
+	_readSet = readSet;
+	_writeSet = writeSet;
+	_wSet = wSet;
+	_rSet = rSet;
+
+	to_parse = _conf[0]["server|"]["listen"];
+	errno = 0;
+	if ((_fd = socket(PF_INET, SOCK_STREAM, 0)) == -1)
+		throw(ServerException("socket()", std::string(strerror(errno))));
+    if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+		throw(ServerException("setsockopt()", std::string(strerror(errno))));
+    if (to_parse.find(":") != std::string::npos)
+    {
+    	host = to_parse.substr(0, to_parse.find(":"));
+    	if ((_port = atoi(to_parse.substr(to_parse.find(":") + 1).c_str())) < 0)
+			throw(ServerException("Wrong port", std::to_string(_port)));
+		_info.sin_addr.s_addr = inet_addr(host.c_str());
+		_info.sin_port = htons(_port);
+    }
+    else
+    {
+		_info.sin_addr.s_addr = INADDR_ANY;
+		if ((_port = atoi(to_parse.c_str())) < 0)
+			throw(ServerException("Wrong port", std::to_string(_port)));
+		_info.sin_port = htons(_port);
+    }
+	_info.sin_family = AF_INET;
+	if (bind(_fd, (struct sockaddr *)&_info, sizeof(_info)) == -1)
+		throw(ServerException("bind()", std::string(strerror(errno))));
+    if (listen(_fd, 256) == -1)
+		throw(ServerException("listen()", std::string(strerror(errno))));
+	if (fcntl(_fd, F_SETFL, O_NONBLOCK) == -1)
+		throw(ServerException("fcntl()", std::string(strerror(errno))));
+	FD_SET(_fd, _rSet);
+    _maxFd = _fd;
+    g_logger.log("[" + std::to_string(_port) + "] " + "listening...", LOW);
+}
+
+void	Server::refuseConnection()
+{
+	int 				fd = -1;
+	struct sockaddr_in	info;
+	socklen_t			len;
+
+	errno = 0;
+	len = sizeof(struct sockaddr);
+	if ((fd = accept(_fd, (struct sockaddr *)&info, &len)) == -1)
+		throw(ServerException("accept()", std::string(strerror(errno))));
+	if (_503_clients.size() < _503_CLIENTS_SIZE)
+	{
+		_503_clients.push(fd);
+		FD_SET(fd, _wSet);
+	}
+	else
+		close(fd);
+}
+
+void	Server::acceptConnection()
+{
+	int 				fd = -1;
+	struct sockaddr_in	info;
+	socklen_t			len;
+	Client				*newOne = NULL;
+
+	memset(&info, 0, sizeof(struct sockaddr));
+	errno = 0;
+	len = sizeof(struct sockaddr);
+	if ((fd = accept(_fd, (struct sockaddr *)&info, &len)) == -1)
+		throw(ServerException("accept()", std::string(strerror(errno))));
+	if (fd > _maxFd)
+		_maxFd = fd;
+	newOne = new Client(fd, _rSet, _wSet, info);
+	_clients.push_back(newOne);
+	g_logger.log("[" + std::to_string(_port) + "] " + "connected clients: " + std::to_string(_clients.size()), LOW); // 연결 요청한 클라이언트 log 정보를 stdout에 출력
+}
+
+void	Server::send503(int fd)
+{
+	Response		response;
+	std::string		str;
+
+	response.version = "HTTP/1.1";
+	response.status_code = UNAVAILABLE;
+	response.headers["Retry-After"] = RETRY;
+	response.headers["Date"] = ft::getDate();
+	response.headers["Server"] = "webserv";
+	response.body = UNAVAILABLE;
+	response.headers["Content-Length"] = std::to_string(response.body.size());
+	std::map<std::string, std::string>::const_iterator b = response.headers.begin();
+	str = response.version + " " + response.status_code + "\r\n";
+	while (b != response.headers.end())
+	{
+		if (b->second != "")
+			str += b->first + ": " + b->second + "\r\n";
+		++b;
+	}
+	str += "\r\n";
+	str += response.body;
+	write(fd, str.c_str(), str.size());
+	write(fd, str.c_str(), str.size());
+	close(fd);
+	FD_CLR(fd, _wSet);
+	_503_clients.pop();
+	g_logger.log("[" + std::to_string(_port) + "] " + "connection refused, sent 503", LOW);
+}
+
+int		Server::readRequest(std::vector<Client*>::iterator it)
+{
+	int 		bytes;
+	int			ret;
+	Client		*client = NULL;
+	std::string	log;
+	char		*tmp;
+
+	client = *it;
+	bytes = strlen(client->rBuf);
+	if (bytes > 0)
+	{
+			tmp = (char *)malloc(sizeof(char) * (bytes + BUFFER_SIZE + 1));
+			strcpy(tmp, client->rBuf);
+			free(client->rBuf);
+			client->rBuf = tmp;
+	}
+	ret = read(client->fd, client->rBuf + bytes, BUFFER_SIZE);
+	bytes += ret;
+	if (ret > 0)
+	{
+		client->rBuf[bytes] = '\0';
+		if (strstr(client->rBuf, "\r\n\r\n") != NULL
+			&& client->status != Client::BODYPARSING)
+		{
+			log = "REQUEST:\n";
+			log += client->rBuf;
+			g_logger.log(log, HIGH);
+			client->last_date = ft::getDate();
+			_parser.parseRequest(*client, _conf);
+			client->setWriteState(true);
+		}
+		if (client->status == Client::BODYPARSING)
+			_parser.parseBody(*client);
+		return (1);
+	}
+	else
+	{
+		*it = NULL;
+		_clients.erase(it);
+		if (client)
+			delete client;
+		g_logger.log("[" + std::to_string(_port) + "] " + "connected clients: " + std::to_string(_clients.size()), LOW);
+		return (0);
+	}
+}
+
+
 Server::ServerException::ServerException(void)
 {
-	this->error = "Undefined Server Exception";	
+	this->error = "Undefined Server Exception";
 }
 
 Server::ServerException::ServerException(std::string function, std::string error)
@@ -27,3 +224,4 @@ const char			*Server::ServerException::what(void) const throw()
 {
 	return (this->error.c_str());
 }
+

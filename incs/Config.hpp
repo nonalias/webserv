@@ -3,14 +3,16 @@
 
 # include <fcntl.h>
 # include <unistd.h>
-# include <stdlib.h> 
+# include <stdlib.h>
 # include <string>
 # include <map>
 # include <vector>
 # include <iostream>
 # include <dirent.h>
-# include <sys/stat.h>
+// # include <sys/stat.h>
 # include "Server.hpp"
+//
+# include "Client.hpp"
 
 #define MAX_FD 256 - 20
 
@@ -26,8 +28,6 @@ class Config
         static void	exit(int sig);
         void		parse(char *file, std::vector<Server> &servers);
         void		init(fd_set *rSet, fd_set *wSet, fd_set *readSet, fd_set *writeSet, struct timeval *timeout);
-        void		getConf(Client &client, Request &req, std::vector<config> &conf);
-        void
 
     class InvalidConfigFileException: public std::exception
     {
