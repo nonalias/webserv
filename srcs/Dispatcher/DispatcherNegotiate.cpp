@@ -35,6 +35,8 @@ void			Dispatcher::negotiate(Client &client)
                         {
                             client.res.headers["Content-Language"] = it->second;
                             tmp_q =it->first * it2->first;
+                            if (fd != -1)
+                                close(fd);
                             fd = tmp_fd;
                             tmp_fd = -1;
                             path = tmp_path;
@@ -53,6 +55,8 @@ void			Dispatcher::negotiate(Client &client)
                         {
                             client.res.headers["Content-Language"] = it->second;
                             tmp_q = it->first * it2->first;
+                            if (fd != -1)
+                                close(fd);
                             fd = tmp_fd;
                             tmp_fd = -1;
                             path = tmp_path;
@@ -73,6 +77,8 @@ void			Dispatcher::negotiate(Client &client)
                 {
                     client.res.headers["Content-Language"] = it->second;
                     tmp_q = it->first;
+                    if (fd != -1)
+                                close(fd);
                     fd = tmp_fd;
                     tmp_fd = -1;
                     path = tmp_path;
@@ -98,12 +104,16 @@ void			Dispatcher::negotiate(Client &client)
                     if (it2->first > tmp_q)
                     {
                         tmp_q = it2->first;
+                        if (fd != -1)
+                                close(fd);
                         fd = tmp_fd;
                         tmp_fd = -1;
                         path = tmp_path;
                         ext = tmp_ext;
                         break ;
                     }
+                    else
+                        close(tmp_fd);
                 }
             }
         }
