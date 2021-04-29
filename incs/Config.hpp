@@ -1,19 +1,21 @@
 #ifndef CONFIG_HPP
 # define CONFIG_HPP
 
-# include <fcntl.h>
-# include <unistd.h>
-# include <stdlib.h>
-# include <string>
-# include <map>
-# include <vector>
-# include <iostream>
-# include <dirent.h>
-// # include <sys/stat.h>
-# include "Server.hpp"
-//
-# include "Client.hpp"
+#include "package.hpp"
 
+// # include <fcntl.h>
+// # include <unistd.h>
+// # include <stdlib.h>
+// # include <string>
+// # include <map>
+// # include <vector>
+// # include <iostream>
+// # include <dirent.h>
+// # include "Server.hpp"
+// # include "Client.hpp"
+
+
+// # include <sys/stat.h>
 #define MAX_FD 256 - 20
 
 class Config

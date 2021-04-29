@@ -1,8 +1,4 @@
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <ctime>
-#include "Logger.hpp"
+#include "package.hpp"
 
 Logger::Logger(bool on, std::string fileName, int param)
 : _fileName(fileName), _param(param), _on(false)

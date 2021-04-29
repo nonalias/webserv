@@ -1,4 +1,4 @@
-#include "Dispatcher.hpp"
+#include "package.hpp"
 
 char		**Dispatcher::setCGIEnv(Client &client)
 {
