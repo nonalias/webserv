@@ -47,18 +47,26 @@ void			Config::parse(char *file, std::vector<Server> &servers)
 	std::string				line;
 	Server					server;
 	config					tmp;
+	bool					http_flag;
 
 	buffer = readFile(file);
 	nb_line = 0;
+	http_flag = false;
 	if (buffer.empty())
 		throw(Config::InvalidConfigFileException(nb_line));
 	while (!buffer.empty())
 	{
 		ft::getline(buffer, line);
 		nb_line++;
+		line = ft::trim(line);
+		if (!line.compare(0, 4, "http") && line[line.size() - 1] == '{' && http_flag == false)
+		{
+			http_flag = true;
+			continue;
+		}
+		if (http_flag == true && line[0] == '}')
+			break;
 
-		while (ft::isspace(line[0]))
-			line.erase(line.begin());
 		if (!line.compare(0, 6, "server"))
 		{
 			while (ft::isspace(line[6]))
