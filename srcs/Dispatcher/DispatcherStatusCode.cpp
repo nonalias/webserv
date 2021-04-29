@@ -1,3 +1,5 @@
+#include "Dispatcher.hpp"
+
 int			Dispatcher::setStatusCode(Client &client)
 {
     std::string                 credential;
@@ -28,7 +30,7 @@ int			Dispatcher::setStatusCode(Client &client)
     return (ret);
 }
 
-int			Dispatcher::GETStatus(Client &client)
+int			Dispatcher::GETHEADStatus(Client &client)
 {
     struct stat		info;
 
