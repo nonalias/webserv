@@ -102,7 +102,7 @@ void			Parser::getClientConf(Client &client, Request &req, std::vector<config> &
             }
         }
     }
-    if (req.method == "GET")
+    if (req.method == "GET" || req.method == "HEAD")
         client.conf["savedpath"] = client.conf["path"];
     g_logger.log("path requested from " + client.ip + ":" + std::to_string(client.port) + ": " + client.conf["path"], MED);
 }

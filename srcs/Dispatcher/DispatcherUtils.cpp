@@ -1,3 +1,5 @@
+#include "Dispatcher.hpp"
+
 static const int B64index[256] = { 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                                    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
                                    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 62, 63, 62, 62, 63, 52, 53, 54, 55,
@@ -46,6 +48,7 @@ void		    Dispatcher::createResponse(Client &client)
         ++b;
     }
     client.response += "\r\n";
+    if (client.req.method != "HEAD")
     client.response += client.res.body;
     client.res.clear();
 }

@@ -1,7 +1,18 @@
 #ifndef DISPATCHER_HPP
 #define DISPATCHER_HPP
 
+#include <vector>
+#include <dirent.h>
+#include <sys/stat.h>
 #include <sstream>
+#include <iostream>
+
+#include "statusCode.h"
+#include "utils.h"
+#include "Client.hpp"
+#include "Parser.hpp"
+
+class Client;
 
 class Dispatcher
 {
@@ -10,10 +21,15 @@ class Dispatcher
         ~Dispatcher();
         void            execute(Client &client);
 
+        typedef void    (Dispatcher::*ptr)(Client &client);
+        typedef int	    (Dispatcher::*sptr)(Client &client);
+
+
     private:
+        Parser _parser;
+
         // Dispatcher
-        void	        GETMethod(Client &client);
-        void	        HEADMethod(Client &client);
+        void	        GETHEADMethod(Client &client);
         void	        POSTMethod(Client &client);
         void        	PUTMethod(Client &client);
         void        	CONNECTMethod(Client &client);
@@ -32,7 +48,7 @@ class Dispatcher
 
         // DispatcherStatusCode
         int     		setStatusCode(Client &client);
-        int     		GETStatus(Client &client);
+        int     		GETHEADStatus(Client &client);
         int     		POSTStatus(Client &client);
         int     		PUTStatus(Client &client);
         int     		CONNECTStatus(Client &client);
@@ -48,5 +64,9 @@ class Dispatcher
         void			getErrorPage(Client &client);
         std::string		getLastModified(std::string path);
         bool            checkCGI(Client &client);
+
+        std::map<std::string, ptr> method;
+        std::map<std::string, sptr> status;
+        std::map<std::string, std::string> MIMETypes;
 };
 #endif

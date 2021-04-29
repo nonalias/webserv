@@ -23,6 +23,7 @@
 class Server
 {
     friend class Config;
+    friend class Dispatcher;
     typedef std::map<std::string, std::string> 	elmt;
     typedef std::map<std::string, elmt>			config;
 

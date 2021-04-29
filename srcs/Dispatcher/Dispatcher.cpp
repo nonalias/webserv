@@ -2,14 +2,8 @@
 
 Dispatcher::Dispatcher()
 {
-    typedef void	(Dispatcher::*ptr)(Client &client);
-
-    std::map<std::string, ptr> method;
-    std::map<std::string, ptr> status;
-    std::map<std::string, std::string> MIMETypes;
-
-    method["GET"] = &Dispatcher::GETMethod;
-    method["HEAD"] = &Dispatcher::HEADMethod;
+    method["GET"] = &Dispatcher::GETHEADMethod;
+    method["HEAD"] = &Dispatcher::GETHEADMethod;
     method["PUT"] = &Dispatcher::PUTMethod;
     method["POST"] = &Dispatcher::POSTMethod;
     method["CONNECT"] = &Dispatcher::CONNECTMethod;
@@ -18,8 +12,8 @@ Dispatcher::Dispatcher()
     method["DELETE"] = &Dispatcher::DELETEMethod;
     method["BAD"] = &Dispatcher::handlingBadRequest;
 
-    status["GET"] = &Dispatcher::GETStatus;
-    status["HEAD"] = &Dispatcher::GETStatus;
+    status["GET"] = &Dispatcher::GETHEADStatus;
+    status["HEAD"] = &Dispatcher::GETHEADStatus;
     status["PUT"] = &Dispatcher::PUTStatus;
     status["POST"] = &Dispatcher::POSTStatus;
     status["CONNECT"] = &Dispatcher::CONNECTStatus;
@@ -49,7 +43,7 @@ void    Dispatcher::execute(Client &client)
     (this->*method[client.req.method])(client);
 }
 
-void	Dispatcher::GETMethod(Client &client)
+void	Dispatcher::GETHEADMethod(Client &client)
 {
     struct stat	file_info;
 
@@ -64,7 +58,7 @@ void	Dispatcher::GETMethod(Client &client)
                 negotiate(client);
             if (checkCGI(client) && client.res.status_code == OK)
             {
-                execCGI(client);
+                executeCGI(client);
                 client.status = Client::CGI;
             }
             else
@@ -104,51 +98,18 @@ void	Dispatcher::GETMethod(Client &client)
 
 }
 
-void	Dispatcher::HEADMethod(Client &client)
-{
-    struct stat	file_info;
-
-    switch (client.status)
-    {
-        case Client::CODE:
-            setStatusCode(client);
-            fstat(client.read_fd, &file_info);
-            if (S_ISDIR(file_info.st_mode) && client.conf["listing"] == "on")
-                createListing(client);
-            else if (client.res.status_code == NOTFOUND)
-                negotiate(client);
-            fstat(client.read_fd, &file_info);
-            if (client.res.status_code == OK)
-            {
-                client.res.headers["Last-Modified"] = getLastModified(client.conf["path"]);
-                client.res.headers["Content-Type"] = findType(client);
-            }
-            else if (client.res.status_code == UNAUTHORIZED)
-                client.res.headers["WWW-Authenticate"] = "Basic";
-            else if (client.res.status_code == NOTALLOWED)
-                client.res.headers["Allow"] = client.conf["methods"];
-            client.res.headers["Date"] = ft::getDate();
-            client.res.headers["Server"] = "webserv";
-            client.res.headers["Content-Length"] = std::to_string(file_info.st_size);
-            createResponse(client);
-            client.status = Client::RESPONSE;
-            break ;
-    }
-
-}
-
 void	Dispatcher::POSTMethod(Client &client)
 {
     switch (client.status)
     {
         case Client::BODYPARSING:
-            parseBody(client);
+            _parser.parseBody(client);
             break ;
         case Client::CODE:
             setStatusCode(client);
             if (checkCGI(client) && client.res.status_code == OK)
             {
-                execCGI(client);
+                executeCGI(client);
                 client.status = Client::CGI;
                 client.setFileToRead(true);
             }
@@ -201,7 +162,7 @@ void	Dispatcher::PUTMethod(Client &client)
     switch (client.status)
     {
         case Client::BODYPARSING:
-            parseBody(client);
+            _parser.parseBody(client);
             break ;
         case Client::CODE:
             if (setStatusCode(client))

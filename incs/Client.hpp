@@ -28,6 +28,7 @@ class Client
 	// friend class Helper;
 	// Server, Handler, Helper 클래스에게 private정보 접근권한 열어줌
 	friend class Parser;
+    friend class Dispatcher;
 
 	typedef std::map<std::string, std::string> t_conf; // 문자열:문자열 맵 t_conf
     typedef std::map<std::string, std::string> 	elmt;
