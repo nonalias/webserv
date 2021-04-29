@@ -68,7 +68,7 @@ void	Dispatcher::GETHEADMethod(Client &client)
         case Client::CGI:
             if (client.read_fd == -1)
             {
-                parseCGIResult(client);
+                _parser.parseCGIResult(client);
                 client.status = Client::HEADERS;
             }
             break ;
@@ -125,7 +125,7 @@ void	Dispatcher::POSTMethod(Client &client)
         case Client::CGI:
             if (client.read_fd == -1)
             {
-                parseCGIResult(client);
+                _parser.parseCGIResult(client);
                 client.status = Client::HEADERS;
             }
             break ;

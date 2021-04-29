@@ -15,9 +15,9 @@ void			Dispatcher::negotiate(Client &client)
     std::string		ext;
 
     if (client.req.headers.find("Accept-Language") != client.req.headers.end())
-        parser.parseAccept(client, languageMap, "Accept-Language");
+        _parser.parseAccept(client, languageMap, "Accept-Language");
     if (client.req.headers.find("Accept-Charset") != client.req.headers.end())
-        parser.parseAccept(client, charsetMap, "Accept-Charset");
+        _parser.parseAccept(client, charsetMap, "Accept-Charset");
     if (!languageMap.empty())
     {
         for (std::multimap<double, std::string>::reverse_iterator it(languageMap.rbegin()); it != languageMap.rend(); ++it)

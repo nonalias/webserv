@@ -6,18 +6,15 @@
 #    By: ijuhae <ijuhae@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/04/27 14:54:02 by ijuhae            #+#    #+#              #
-#    Updated: 2021/04/27 16:43:43 by ijuhae           ###   ########.fr        #
+#    Updated: 2021/04/29 20:33:44 by ijuhae           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
-
-# COLORS #
 
 # This is a minimal set of ANSI/VT100 color codes
 _END		=	\e[0m
 _BOLD		=	\e[1m
 _UNDER		=	\e[4m
 _REV		=	\e[7m
-
 # Colors
 _GREY		=	\e[30m
 _RED		=	\e[31m
@@ -27,7 +24,6 @@ _BLUE		=	\e[34m
 _PURPLE		=	\e[35m
 _CYAN		=	\e[36m
 _WHITE		=	\e[37m
-
 # Inverted, i.e. colored backgrounds
 _IGREY		=	\e[40m
 _IRED		=	\e[41m
@@ -37,30 +33,18 @@ _IBLUE		=	\e[44m
 _IPURPLE	=	\e[45m
 _ICYAN		=	\e[46m
 _IWHITE		=	\e[47m
-
 # COMPILATION #
-
 CC			=	clang++
-
 CC_FLAGS	=	-Wall -Wextra -Werror
-
 # COMMANDS #
-
 RM			=	rm -rf
-
 # DIRECTORIES #
-
 DIR_HEADERS =	./incs/
-
 DIR_SRCS	=	./srcs/
-
 DIR_OBJS	=	./compiled_srcs/
-
 DIR_CONFIGS =	./conf/
-
-
+DIR_DIS		=	./srcs/Dispatcher
 # FILES #
-
 SRC			=	Config.cpp \
 				Server.cpp \
 				utils.cpp \
@@ -69,59 +53,40 @@ SRC			=	Config.cpp \
 				Logger.cpp \
 				Client.cpp \
 				Parser.cpp
-
-
 SRCS		=	$(SRC)
-
 # COMPILED_SOURCES #
-
 OBJS 		=	$(SRCS:%.cpp=$(DIR_OBJS)%.o)
-
+OBJ			= 	*.o
 NAME 		=	webserv
-
 CONFIG		=	webserv.conf
-
-
 # **************************************************************************** #
-
 ## RULES ##
-
 all:			$(NAME) $(DIR_CONFIGS)$(CONFIG)
-
 # VARIABLES RULES #
-
 $(NAME):		$(OBJS)
+				make -C $(DIR_DIS)
 				@printf "\033[2K\r$(_GREEN) All files compiled into '$(DIR_OBJS)'. $(_END)✅\n"
-				$(CC) $(CC_FLAGS) -I $(DIR_HEADERS) $(OBJS) -o $(NAME)
+				$(CC) $(CC_FLAGS) -I $(DIR_HEADERS) $(OBJS) $(DIR_DIS)/$(OBJ) -o $(NAME)
 				@printf "$(_GREEN) Executable '$(NAME)' created. $(_END)✅\n"
-
 # COMPILED_SOURCES RULES #
-
 $(OBJS):		| $(DIR_OBJS)
-
-
 $(DIR_OBJS)%.o: $(DIR_SRCS)%.cpp
 				$(CC) $(CC_FLAGS) -I $(DIR_HEADERS) -c $< -o $@
-
 $(DIR_OBJS):
 				mkdir $(DIR_OBJS)
-
 $(DIR_CONFIGS)$(CONFIG):
 				@cat $(DIR_CONFIGS)webserv_model.conf | sed 's=PWD=$(PWD)=g' > $(DIR_CONFIGS)$(CONFIG)
 				@printf "\033[2K\r$(_GREEN) Default config file '$(DIR_CONFIGS)$(CONFIG)' created. $(_END)✅\n"
-
 # OBLIGATORY PART #
-
 clean:
+				make clean -C $(DIR_DIS)
 				@$(RM) $(DIR_OBJS)
 				@printf "$(_RED) '"$(DIR_OBJS)"' has been deleted. $(_END)🗑️\n"
-
 fclean:			clean
+				make fclean -C $(DIR_DIS)
 				@$(RM) $(NAME)
 				@printf "$(_RED) '"$(NAME)"' has been deleted. $(_END)🗑️\n"
 				@$(RM) $(DIR_CONFIGS)$(CONFIG)
 				@printf "$(_RED) '"$(DIR_CONFIGS)$(CONFIG)"' has been deleted. $(_END)🗑️\n"
-
 re:				fclean all
-
 .PHONY:			all clean fclean re bonus re_bonus

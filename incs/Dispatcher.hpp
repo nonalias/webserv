@@ -21,7 +21,7 @@ class Dispatcher
 {
     public:
         Dispatcher();
-        ~Dispatcher();
+        // ~Dispatcher();
         void            execute(Client &client);
 
         typedef void    (Dispatcher::*ptr)(Client &client);
@@ -44,7 +44,7 @@ class Dispatcher
         // DispatcherCGI
         char        	**setCGIEnv(Client &client);
         void        	executeCGI(Client &client);
-        void          	parseCGIResult(Client &client);
+        // void          	parseCGIResult(Client &client);
 
         // DispatcherNegotiate
         void        	negotiate(Client &client);
