@@ -1,19 +1,21 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
+#include "package.hpp"
 
-#include <sys/wait.h>
-#include <string.h>
-#include <iostream>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/select.h>
-#include <arpa/inet.h>
 //#include <string>		iostream에 내장되어있기때문에 없어도 괜찮을듯
-#include <map>
 
-#include "messages.h"  // request, response구조체 가져옴.
-#include "Logger.hpp"
-#include "Parser.hpp"
+// #include <sys/wait.h>
+// #include <string.h>
+// #include <iostream>
+// #include <fcntl.h>
+// #include <unistd.h>
+// #include <sys/select.h>
+// #include <arpa/inet.h>
+// #include <map>
+
+// #include "messages.h"  // request, response구조체 가져옴.
+// #include "Logger.hpp"
+// #include "Parser.hpp"
 
 #define BUFFER_SIZE 32768 // 왜 32768,,?
 #define TMP_PATH "/tmp/cgi.tmp" // cgi.tmp파일로 테스트용인가? 깃헙파일에는 없음

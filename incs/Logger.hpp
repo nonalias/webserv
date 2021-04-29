@@ -1,8 +1,10 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
-#include <string>
-#include <iostream>
+#include "package.hpp"
+
+// #include <string>
+// #include <iostream>
 
 #define LOW 	1
 #define MED 	2

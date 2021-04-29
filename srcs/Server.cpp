@@ -1,5 +1,4 @@
-#include "Server.hpp"
-#include "utils.h"
+#include "package.hpp"
 
 Server::Server() : _fd(-1), _maxFd(-1), _port(-1)
 {
@@ -46,6 +45,22 @@ int		Server::getOpenFd()
 	}
 	nb += _503_clients.size();
 	return (nb);
+}
+
+int		Server::getTimeDiff(std::string start)
+{
+	struct tm		start_tm;
+	struct tm		*now_tm;
+	struct timeval	time;
+	int				result;
+
+	strptime(start.c_str(), "%a, %d %b %Y %T", &start_tm);
+	gettimeofday(&time, NULL);
+	now_tm = localtime(&time.tv_sec);
+	result = (now_tm->tm_hour - start_tm.tm_hour) * 3600;
+	result += (now_tm->tm_min - start_tm.tm_min) * 60;
+	result += (now_tm->tm_sec - start_tm.tm_sec);
+	return (result);
 }
 
 void	Server::init(fd_set *readSet, fd_set *writeSet, fd_set *rSet, fd_set *wSet)
@@ -205,6 +220,45 @@ int		Server::readRequest(std::vector<Client*>::iterator it)
 		g_logger.log("[" + std::to_string(_port) + "] " + "connected clients: " + std::to_string(_clients.size()), LOW);
 		return (0);
 	}
+}
+
+int		Server::writeResponse(std::vector<Client*>::iterator it)
+{
+	unsigned long	bytes;
+	std::string		tmp;
+	std::string		log;
+	Client			*client = NULL;
+
+	client = *it;
+	switch (client->status)
+	{
+		case Client::RESPONSE:
+			log = "RESPONSE:\n";
+			log += client->response.substr(0, 128);
+			g_logger.log(log, HIGH);
+			bytes = write(client->fd, client->response.c_str(), client->response.size());
+			if (bytes < client->response.size())
+				client->response = client->response.substr(bytes);
+			else
+			{
+				client->response.clear();
+				client->setToStandBy();
+			}
+			client->last_date = ft::getDate();
+			break ;
+		case Client::STANDBY:
+			if (getTimeDiff(client->last_date) >= TIMEOUT)
+				client->status = Client::DONE;
+			break ;
+		case Client::DONE:
+			delete client;
+			_clients.erase(it);
+			g_logger.log("[" + std::to_string(_port) + "] " + "connected clients: " + std::to_string(_clients.size()), LOW);
+			return (0);
+		default:
+			_dispatcher.execute(*client);
+	}
+	return (1);
 }
 
 

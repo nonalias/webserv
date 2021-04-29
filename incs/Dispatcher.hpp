@@ -1,18 +1,21 @@
 #ifndef DISPATCHER_HPP
 #define DISPATCHER_HPP
 
-#include <vector>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <sstream>
-#include <iostream>
+#include "package.hpp"
 
-#include "statusCode.h"
-#include "utils.h"
-#include "Client.hpp"
-#include "Parser.hpp"
+// #include <vector>
+// #include <dirent.h>
+// #include <sys/stat.h>
+// #include <sstream>
+// #include <iostream>
+
+// #include "statusCode.h"
+// #include "Client.hpp"
+// #include "Parser.hpp"
+// #include "utils.h"
 
 class Client;
+class Server;
 
 class Dispatcher
 {

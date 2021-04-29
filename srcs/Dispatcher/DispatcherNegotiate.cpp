@@ -1,4 +1,4 @@
-#include "Dispatcher.hpp"
+#include "package.hpp"
 
 void			Dispatcher::negotiate(Client &client)
 {

@@ -1,20 +1,21 @@
 #ifndef Server_HPP
 #define Server_HPP
 
-#include <queue>
-#include <fcntl.h>
-#include <unistd.h>
-#include <cstdlib>
-#include <string>
-#include <map>
-#include <vector>
-#include <iostream>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <netinet/in.h>
-#include "Client.hpp"
-#include "statusCode.h"
-#include "Parser.hpp"
+#include "package.hpp"
+
+// #include <queue>
+// #include <fcntl.h>
+// #include <unistd.h>
+// #include <cstdlib>
+// #include <string>
+// #include <map>
+// #include <vector>
+// #include <iostream>
+// #include <dirent.h>
+// #include <sys/stat.h>
+// #include <netinet/in.h>
+// #include "Parser.hpp"
+// #include "Dispatcher.hpp"
 
 #define TIMEOUT 10
 #define RETRY	"25"
@@ -38,6 +39,7 @@ class Server
         fd_set					*_wSet;
         std::vector<config>		_conf;
         Parser                  _parser;
+        Dispatcher              _dispatcher;
 
     public:
         Server();
@@ -56,6 +58,7 @@ class Server
         void    acceptConnection();
         void    send503(int fd);
         int     readRequest(std::vector<Client*>::iterator it);
+        int		writeResponse(std::vector<Client*>::iterator it);
         void	init(fd_set *readSet, fd_set *writeSet, fd_set *rSet, fd_set *wSet);
 
     class		ServerException: public std::exception
