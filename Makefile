@@ -66,7 +66,7 @@ all:			$(NAME) $(DIR_CONFIGS)$(CONFIG)
 $(NAME):		$(OBJS)
 				make -C $(DIR_DIS)
 				@printf "\033[2K\r$(_GREEN) All files compiled into '$(DIR_OBJS)'. $(_END)✅\n"
-				$(CC) $(CC_FLAGS) $(DIR_OBJS)$(OBJ) -I $(DIR_HEADERS) -o $(NAME)
+				$(CC) $(CC_FLAGS) -I $(DIR_HEADERS) $(OBJS) $(DIR_DIS)/$(OBJ) -o $(NAME)
 				@printf "$(_GREEN) Executable '$(NAME)' created. $(_END)✅\n"
 # COMPILED_SOURCES RULES #
 $(OBJS):		| $(DIR_OBJS)
