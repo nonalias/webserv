@@ -73,7 +73,7 @@ void			Parser::getClientConf(Client &client, Request &req, std::vector<config> &
         client.conf = elmt;
         client.conf["path"] = req.uri.substr(0, req.uri.find("?"));
         if (elmt.find("root") != elmt.end())
-            client.conf["path"] = elmt["root"];
+        	client.conf["path"].replace(0, tmp.size(), elmt["root"]); 
     }
     for (std::map<std::string, std::string>::iterator it(to_parse["server|"].begin()); it != to_parse["server|"].end(); ++it)
     {
