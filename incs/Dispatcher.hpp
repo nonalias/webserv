@@ -20,13 +20,17 @@ class Server;
 class Dispatcher
 {
     public:
-        Dispatcher();
-        // ~Dispatcher();
         void            execute(Client &client);
-
+        
         typedef void    (Dispatcher::*ptr)(Client &client);
         typedef int	    (Dispatcher::*sptr)(Client &client);
 
+        static Dispatcher* GetInstance() {
+            if(!instance){
+                instance = new Dispatcher();
+            }
+            return instance;
+        }
 
     private:
         Parser _parser;
@@ -71,5 +75,8 @@ class Dispatcher
         std::map<std::string, ptr> method;
         std::map<std::string, sptr> status;
         std::map<std::string, std::string> MIMETypes;
+
+        static Dispatcher *instance;
+        Dispatcher();
 };
 #endif

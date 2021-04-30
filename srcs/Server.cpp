@@ -1,6 +1,6 @@
 #include "package.hpp"
 
-Server::Server() : _fd(-1), _maxFd(-1), _port(-1)
+Server::Server(Dispatcher &dispatcher) : _fd(-1), _maxFd(-1), _port(-1), _dispatcher(dispatcher)
 {
 	memset(&_info, 0, sizeof(_info));
 }

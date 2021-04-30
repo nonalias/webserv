@@ -14,7 +14,6 @@
 // # include "Server.hpp"
 // # include "Client.hpp"
 
-
 // # include <sys/stat.h>
 #define MAX_FD 256 - 20
 
@@ -24,7 +23,7 @@ class Config
     typedef std::map<std::string, elmt>			config;
 
     public:
-        Config();
+        Config(Dispatcher &_dispatcher);
         ~Config();
 
         static void	exit(int sig);
@@ -48,6 +47,7 @@ class Config
     private:
         std::string	readFile(char *file);
         void		getContent(std::string &buffer, std::string &context, std::string prec, size_t &nb_line, config &config);
+        Dispatcher  &_dispatcher;
 };
 
 #endif

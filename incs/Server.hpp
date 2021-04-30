@@ -39,10 +39,10 @@ class Server
         fd_set					*_wSet;
         std::vector<config>		_conf;
         Parser                  _parser;
-        Dispatcher              _dispatcher;
+        Dispatcher              &_dispatcher;
 
     public:
-        Server();
+        Server(Dispatcher &dispatcher);
         ~Server();
 
 		std::vector<Client*>	_clients;

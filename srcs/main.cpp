@@ -12,15 +12,14 @@ int		ret_error(std::string error)
 
 int 	main(int ac, char **av)
 {
-	Config					config;
-	Server					tmpServer;
+	Config					config(*Dispatcher::GetInstance());
+	Server					tmpServer(*Dispatcher::GetInstance());
 	fd_set					readSet;
 	fd_set					writeSet;
 	fd_set					rSet;
 	fd_set					wSet;
 	struct timeval			timeout;
 	Client					*client;
-
 
 	if (ac != 2)
 		return (ret_error("Usage: ./webserv config-file"));

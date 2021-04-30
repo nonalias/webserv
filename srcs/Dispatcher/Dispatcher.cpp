@@ -1,5 +1,7 @@
 #include "package.hpp"
 
+Dispatcher* Dispatcher::instance = NULL;
+
 Dispatcher::Dispatcher()
 {
     method["GET"] = &Dispatcher::GETHEADMethod;
