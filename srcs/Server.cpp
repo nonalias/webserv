@@ -7,7 +7,27 @@ Server::Server(Dispatcher &dispatcher) : _fd(-1), _maxFd(-1), _port(-1), _dispat
 
 Server::~Server()
 {
+    Client		*client = NULL;
 
+	if (_fd != -1)
+	{
+		for (std::vector<Client*>::iterator it(_clients.begin()); it != _clients.end(); ++it)
+		{
+			client = *it;
+			*it = NULL;
+			if (client)
+				delete client;
+		}
+		while (!_503_clients.empty())
+		{
+			close(_503_clients.front());
+			_503_clients.pop();
+		}
+		_clients.clear();
+		close(_fd);
+		FD_CLR(_fd, _rSet);
+		g_logger.log("[" + std::to_string(_port) + "] " + "closed", LOW);
+	}
 }
 
 int		Server::getFd() const
