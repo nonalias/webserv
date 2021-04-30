@@ -3,9 +3,9 @@
 extern	std::vector<Server> g_servers;
 extern	bool				g_state;
 
-Config::Config()
+Config::Config(Dispatcher &dispatcher): _dispatcher(dispatcher)
 {
-
+	
 }
 
 Config::~Config()
@@ -45,7 +45,7 @@ void			Config::parse(char *file, std::vector<Server> &servers)
 	std::string				context;
 	std::string				buffer;
 	std::string				line;
-	Server					server;
+	Server					server(_dispatcher);
 	config					tmp;
 	bool					http_flag;
 

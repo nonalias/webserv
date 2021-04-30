@@ -24,7 +24,6 @@ fclean		: clean
 re			: fclean all
 
 
-
 $(NAME)		: $(DIR_OBJS)
 			$(CC) -c $(CC_FLAGS) $(SRCS) -I $(DIR_HEADERS)
 			mv $(OBJS) $(DIR_OBJS)
