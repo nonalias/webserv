@@ -188,7 +188,6 @@ void	Server::send503(int fd)
 	str += "\r\n";
 	str += response.body;
 	write(fd, str.c_str(), str.size());
-	write(fd, str.c_str(), str.size());
 	close(fd);
 	FD_CLR(fd, _wSet);
 	_503_clients.pop();
