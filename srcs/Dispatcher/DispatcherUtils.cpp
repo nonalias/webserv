@@ -104,7 +104,7 @@ void			Dispatcher::getErrorPage(Client &client)
 {
     std::string		path;
 
-    path = client.conf["error"] + "/" + client.res.status_code.substr(0, 3) + ".html";	//
+    path = client.conf["error"] + "/" + client.res.status_code.substr(0, 3) + ".html";
     client.conf["path"] = path;
     client.read_fd = open(path.c_str(), O_RDONLY);
 }
