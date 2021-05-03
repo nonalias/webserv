@@ -49,7 +49,7 @@ void		    Dispatcher::createResponse(Client &client)
     }
     client.response += "\r\n";
     if (client.req.method != "HEAD")
-    client.response += client.res.body;
+        client.response += client.res.body;
     client.res.clear();
 }
 
