@@ -162,7 +162,7 @@ void	Server::acceptConnection()
 		_maxFd = fd;
 	newOne = new Client(fd, _rSet, _wSet, info);
 	_clients.push_back(newOne);
-	g_logger.log("[" + std::to_string(_port) + "] " + "connected clients: " + std::to_string(_clients.size()), LOW); // 연결 요청한 클라이언트 log 정보를 stdout에 출력
+	g_logger.log("[" + std::to_string(_port) + "] " + "connected clients: " + std::to_string(_clients.size()), LOW);
 }
 
 void	Server::send503(int fd)

@@ -2,12 +2,6 @@
 # define UTILS_H
 
 #include "package.hpp"
-
-// # include <string>
-// # include <sys/time.h>
-// #include <iostream>
-// # include "Server.hpp"
-
 namespace ft
 {
 	std::string &trim(std::string &str);

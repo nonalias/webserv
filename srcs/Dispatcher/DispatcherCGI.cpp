@@ -40,7 +40,6 @@ char		**Dispatcher::setCGIEnv(Client &client)
         envMap["REMOTE_USER"] = client.req.headers["Authorization"].substr(pos + 1);
         envMap["REMOTE_IDENT"] = client.req.headers["Authorization"].substr(pos + 1);
     }
-    //
     if (client.conf.find("php") != client.conf.end() && client.req.uri.find(".php") != std::string::npos)
         envMap["REDIRECT_STATUS"] = "200";
     std::map<std::string, std::string>::iterator b = client.req.headers.begin();
@@ -108,49 +107,3 @@ void		Dispatcher::executeCGI(Client &client)
     }
     ft::freeAll(args, env);
 }
-
-// void		Dispatcher::parseCGIResult(Client &client)
-// {
-//     size_t			pos;
-//     std::string		headers;
-//     std::string		key;
-//     std::string		value;
-
-//     if (client.res.body.find("\r\n\r\n") == std::string::npos)
-//         return ;
-//     headers = client.res.body.substr(0, client.res.body.find("\r\n\r\n") + 1);
-//     pos = headers.find("Status");
-//     if (pos != std::string::npos)
-//     {
-//         client.res.status_code.clear();
-//         pos += 8;
-//         while (headers[pos] != '\r')
-//         {
-//             client.res.status_code += headers[pos];
-//             pos++;
-//         }
-//     }
-//     pos = 0;
-//     while (headers[pos])
-//     {
-//         while (headers[pos] && headers[pos] != ':')
-//         {
-//             key += headers[pos];
-//             ++pos;
-//         }
-//         ++pos;
-//         while (headers[pos] && headers[pos] != '\r')
-//         {
-//             value += headers[pos];
-//             ++pos;
-//         }
-//         client.res.headers[key] = value;
-//         key.clear();
-//         value.clear();
-//         if (headers[pos] == '\r' || headers[pos] == '\n')
-//             pos++;
-//     }
-//     pos = client.res.body.find("\r\n\r\n") + 4;
-//     client.res.body = client.res.body.substr(pos);
-//     client.res.headers["Content-Length"] = std::to_string(client.res.body.size());
-// }

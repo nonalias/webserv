@@ -8,14 +8,14 @@ Client::Client(int filed, fd_set *r, fd_set *w, struct sockaddr_in info)
 	port = htons(info.sin_port);
 	rBuf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	memset((void *)rBuf, 0, BUFFER_SIZE + 1);
-	fcntl(fd, F_SETFL, O_NONBLOCK); // fd를 non-blocking 모드로 바꿈
-	FD_SET(fd, rSet);  // 클라이언트와 연결된 서버의 rSet에 클라이언트 fd 추가
-	FD_SET(fd, wSet);  // 클라이언트와 연결된 서버의 wSet에 클라이언트 fd 추가
+	fcntl(fd, F_SETFL, O_NONBLOCK);
+	FD_SET(fd, rSet);
+	FD_SET(fd, wSet);
 	chunk.len = 0;
 	chunk.done = false;
 	chunk.found = false;
-	last_date = ft::getDate();  // 몇요일/몇일/몇월(영어)/몇년도 몇시:몇분:몇초 timezone
-	g_logger.log("new connection from " + ip + ":" + std::to_string(port), LOW);  // 연결 요청한 클라이언트 log 정보를 stdout에 출력
+	last_date = ft::getDate();
+	g_logger.log("new connection from " + ip + ":" + std::to_string(port), LOW);
 }
 
 Client::~Client()
@@ -92,11 +92,11 @@ void	Client::readFile()
 
 	if (cgi_pid != -1)
 	{
-		if (waitpid((pid_t)cgi_pid, (int *)&status, (int)WNOHANG) == 0) // 종료되었는지 체크. 안 되었으면 반환값은 0
+		if (waitpid((pid_t)cgi_pid, (int *)&status, (int)WNOHANG) == 0)
 			return ;
 		else
 		{
-			if (WEXITSTATUS(status) == 1) // 비정상종료. 프로그램이 정상적으로 끝난 반환값은 기본적으로 0이다.
+			if (WEXITSTATUS(status) == 1)
 			{
 				close(tmp_fd);
 				tmp_fd = -1;
@@ -110,7 +110,7 @@ void	Client::readFile()
 			}
 		}
 	}
-	ret = read(read_fd, buffer, BUFFER_SIZE); // getErrorPage로 가져온 read_fd를 읽는다.
+	ret = read(read_fd, buffer, BUFFER_SIZE);
 
 	if (ret >= 0)
 		buffer[ret] = '\0';

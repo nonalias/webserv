@@ -203,7 +203,7 @@ void	Dispatcher::CONNECTMethod(Client &client)
     switch (client.status)
     {
         case Client::CODE:
-            setStatusCode(client); ///////////////////////이부분 꼭 setStatusCode()에서 해결해야하나?
+            setStatusCode(client);
             client.setFileToRead(true);
             client.res.headers["Date"] = ft::getDate();
             client.res.headers["Server"] = "webserv";
@@ -258,7 +258,7 @@ void	Dispatcher::OPTIONSMethod(Client &client)
     switch (client.status)
     {
         case Client::CODE:
-            setStatusCode(client); // 이부분도 꼭 setStatusCode()에서 처리안해줘도될듯한데 그냥 메소드 구색맞추기?
+            setStatusCode(client);
             client.res.headers["Date"] = ft::getDate();
             client.res.headers["Server"] = "webserv";
             if (client.req.uri != "*")
