@@ -1,14 +1,7 @@
 #ifndef PARSER_HPP
 # define PARSER_HPP
-
 #include "package.hpp"
 
-// # include <vector>
-// # include "Client.hpp"
-// # include <sstream>
-// # include "utils.h"
-
-// # include "Server.hpp"
 typedef std::map<std::string, std::string> 	elmt;
 typedef std::map<std::string, elmt>			config;
 
@@ -32,7 +25,6 @@ class Parser {
         int		    findLen(Client &client);
         void        fillBody(Client &client);
         int			fromHexa(const char *nb);
-
 };
 
 #endif

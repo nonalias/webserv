@@ -25,7 +25,7 @@ Server::~Server()
 		}
 		_clients.clear();
 		close(_fd);
-		FD_CLR(_fd, _rSet);
+		ft::FT_FD_CLR(_fd, _rSet);
 		g_logger.log("[" + std::to_string(_port) + "] " + "closed", LOW);
 	}
 }
@@ -106,14 +106,14 @@ void	Server::init(fd_set *readSet, fd_set *writeSet, fd_set *rSet, fd_set *wSet)
     	if ((_port = atoi(to_parse.substr(to_parse.find(":") + 1).c_str())) < 0)
 			throw(ServerException("Wrong port", std::to_string(_port)));
 		_info.sin_addr.s_addr = inet_addr(host.c_str());
-		_info.sin_port = htons(_port);
+		_info.sin_port = ft::ft_htons(_port);
     }
     else
     {
 		_info.sin_addr.s_addr = INADDR_ANY;
 		if ((_port = atoi(to_parse.c_str())) < 0)
 			throw(ServerException("Wrong port", std::to_string(_port)));
-		_info.sin_port = htons(_port);
+		_info.sin_port = ft::ft_htons(_port);
     }
 	_info.sin_family = AF_INET;
 	if (bind(_fd, (struct sockaddr *)&_info, sizeof(_info)) == -1)
@@ -122,7 +122,7 @@ void	Server::init(fd_set *readSet, fd_set *writeSet, fd_set *rSet, fd_set *wSet)
 		throw(ServerException("listen()", std::string(strerror(errno))));
 	if (fcntl(_fd, F_SETFL, O_NONBLOCK) == -1)
 		throw(ServerException("fcntl()", std::string(strerror(errno))));
-	FD_SET(_fd, _rSet);
+	ft::FT_FD_SET(_fd, _rSet);
     _maxFd = _fd;
     g_logger.log("[" + std::to_string(_port) + "] " + "listening...", LOW);
 }
@@ -140,7 +140,7 @@ void	Server::refuseConnection()
 	if (_503_clients.size() < _503_CLIENTS_SIZE)
 	{
 		_503_clients.push(fd);
-		FD_SET(fd, _wSet);
+		ft::FT_FD_SET(fd, _wSet);
 	}
 	else
 		close(fd);
@@ -162,7 +162,7 @@ void	Server::acceptConnection()
 		_maxFd = fd;
 	newOne = new Client(fd, _rSet, _wSet, info);
 	_clients.push_back(newOne);
-	g_logger.log("[" + std::to_string(_port) + "] " + "connected clients: " + std::to_string(_clients.size()), LOW); // 연결 요청한 클라이언트 log 정보를 stdout에 출력
+	g_logger.log("[" + std::to_string(_port) + "] " + "connected clients: " + std::to_string(_clients.size()), LOW);
 }
 
 void	Server::send503(int fd)
@@ -192,7 +192,7 @@ void	Server::send503(int fd)
 	if (ret == -1)
 		g_logger.log("Error: write()", LOW);
 	close(fd);
-	FD_CLR(fd, _wSet);
+	ft::FT_FD_CLR(fd, _wSet);
 	_503_clients.pop();
 	g_logger.log("[" + std::to_string(_port) + "] " + "connection refused, sent 503", LOW);
 }

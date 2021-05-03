@@ -86,7 +86,6 @@ void			Parser::getClientConf(Client &client, Request &req, std::vector<config> &
         if (client.conf["index"][0] && client.conf["listing"] != "on")
         {
             tmp = elmt["index"];
-            /* 이부분 수정함 */
             if (client.conf["index"][0] && client.conf["listing"] != "on")
             {
                 while (!tmp.empty())

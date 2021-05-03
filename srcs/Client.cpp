@@ -5,17 +5,18 @@ Client::Client(int filed, fd_set *r, fd_set *w, struct sockaddr_in info)
 : fd(filed), read_fd(-1), write_fd(-1), status(STANDBY), cgi_pid(-1), tmp_fd(-1), rSet(r), wSet(w)
 {
 	ip = inet_ntoa(info.sin_addr);
-	port = htons(info.sin_port);
+	port = ft::ft_htons(info.sin_port);
 	rBuf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	memset((void *)rBuf, 0, BUFFER_SIZE + 1);
+
 	fcntl(fd, F_SETFL, O_NONBLOCK); // fd를 non-blocking 모드로 바꿈
-	FD_SET(fd, rSet);  // 클라이언트와 연결된 서버의 rSet에 클라이언트 fd 추가
-	FD_SET(fd, wSet);  // 클라이언트와 연결된 서버의 wSet에 클라이언트 fd 추가
+	ft::FT_FD_SET(fd, rSet);  // 클라이언트와 연결된 서버의 rSet에 클라이언트 fd 추가
+	ft::FT_FD_SET(fd, wSet);  // 클라이언트와 연결된 서버의 wSet에 클라이언트 fd 추가
 	chunk.len = 0;
 	chunk.done = false;
 	chunk.found = false;
-	last_date = ft::getDate();  // 몇요일/몇일/몇월(영어)/몇년도 몇시:몇분:몇초 timezone
-	g_logger.log("new connection from " + ip + ":" + std::to_string(port), LOW);  // 연결 요청한 클라이언트 log 정보를 stdout에 출력
+	last_date = ft::getDate();
+	g_logger.log("new connection from " + ip + ":" + std::to_string(port), LOW);
 }
 
 Client::~Client()
@@ -25,18 +26,18 @@ Client::~Client()
 	if (fd != -1)
 	{
 		close(fd);
-		FD_CLR(fd, rSet);
-		FD_CLR(fd, wSet);
+		ft::FT_FD_CLR(fd, rSet);
+		ft::FT_FD_CLR(fd, wSet);
 	}
 	if (read_fd != -1)
 	{
 		close(read_fd);
-		FD_CLR(read_fd, rSet);
+		ft::FT_FD_CLR(read_fd, rSet);
 	}
 	if (write_fd != -1)
 	{
 		close(write_fd);
-		FD_CLR(write_fd, wSet);
+		ft::FT_FD_CLR(write_fd, wSet);
 	}
 	if (tmp_fd != -1)
 	{
@@ -49,17 +50,17 @@ Client::~Client()
 void	Client::setReadState(bool state)
 {
 	if (state)
-		FD_SET(fd, rSet);
+		ft::FT_FD_SET(fd, rSet);
 	else
-		FD_CLR(fd, rSet);
+		ft::FT_FD_CLR(fd, rSet);
 }
 
 void	Client::setWriteState(bool state)
 {
 	if (state)
-		FD_SET(fd, wSet);
+		ft::FT_FD_SET(fd, wSet);
 	else
-		FD_CLR(fd, wSet);
+		ft::FT_FD_CLR(fd, wSet);
 }
 
 void	Client::setFileToRead(bool state)
@@ -67,9 +68,9 @@ void	Client::setFileToRead(bool state)
 	if (read_fd != -1)
 	{
 		if (state)
-			FD_SET(read_fd, rSet);
+			ft::FT_FD_SET(read_fd, rSet);
 		else
-			FD_CLR(read_fd, rSet);
+			ft::FT_FD_CLR(read_fd, rSet);
 	}
 }
 
@@ -78,9 +79,9 @@ void	Client::setFileToWrite(bool state)
 	if (write_fd != -1)
 	{
 		if (state)
-			FD_SET(write_fd, wSet);
+			ft::FT_FD_SET(write_fd, wSet);
 		else
-			FD_CLR(write_fd, wSet);
+			ft::FT_FD_CLR(write_fd, wSet);
 	}
 }
 
@@ -92,11 +93,11 @@ void	Client::readFile()
 
 	if (cgi_pid != -1)
 	{
-		if (waitpid((pid_t)cgi_pid, (int *)&status, (int)WNOHANG) == 0) // 종료되었는지 체크. 안 되었으면 반환값은 0
+		if (waitpid((pid_t)cgi_pid, (int *)&status, (int)WNOHANG) == 0)
 			return ;
 		else
 		{
-			if (WEXITSTATUS(status) == 1) // 비정상종료. 프로그램이 정상적으로 끝난 반환값은 기본적으로 0이다.
+			if (WEXITSTATUS(status) == 1)
 			{
 				close(tmp_fd);
 				tmp_fd = -1;
@@ -110,8 +111,7 @@ void	Client::readFile()
 			}
 		}
 	}
-
-	ret = read(read_fd, buffer, BUFFER_SIZE); // getErrorPage로 가져온 read_fd를 읽는다.
+	ret = read(read_fd, buffer, BUFFER_SIZE);
 	if (ret >= 0)
 	{
 		buffer[ret] = '\0';

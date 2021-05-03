@@ -49,7 +49,7 @@ void		    Dispatcher::createResponse(Client &client)
     }
     client.response += "\r\n";
     if (client.req.method != "HEAD")
-    client.response += client.res.body;
+        client.response += client.res.body;
     client.res.clear();
 }
 
@@ -104,7 +104,7 @@ void			Dispatcher::getErrorPage(Client &client)
 {
     std::string		path;
 
-    path = client.conf["error"] + "/" + client.res.status_code.substr(0, 3) + ".html";	//
+    path = client.conf["error"] + "/" + client.res.status_code.substr(0, 3) + ".html";
     client.conf["path"] = path;
     client.read_fd = open(path.c_str(), O_RDONLY);
 }

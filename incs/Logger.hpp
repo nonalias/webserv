@@ -1,14 +1,9 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
-
-#include "package.hpp"
-
-// #include <string>
-// #include <iostream>
-
 #define LOW 	1
 #define MED 	2
 #define HIGH	3
+#include "package.hpp"
 
 class Logger
 {
