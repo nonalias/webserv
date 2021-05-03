@@ -5,7 +5,7 @@ extern	bool				g_state;
 
 Config::Config(Dispatcher &dispatcher): _dispatcher(dispatcher)
 {
-	
+
 }
 
 Config::~Config()
@@ -194,7 +194,7 @@ void			Config::init(fd_set *rSet, fd_set *wSet, fd_set *readSet, fd_set *writeSe
 	timeout->tv_usec = 0;
 
 	for (std::vector<Server>::iterator it(g_servers.begin()); it != g_servers.end(); ++it)
-		it->init(readSet, writeSet, rSet, wSet);
+		it->init(rSet, wSet);
 }
 
 Config::InvalidConfigFileException::InvalidConfigFileException(void) {this->line = 0;}

@@ -40,7 +40,7 @@ class Server
         void    send503(int fd);
         int     readRequest(std::vector<Client*>::iterator it);
         int		writeResponse(std::vector<Client*>::iterator it);
-        void	init(fd_set *readSet, fd_set *writeSet, fd_set *rSet, fd_set *wSet);
+        void	init(fd_set *rSet, fd_set *wSet);
 
     class		ServerException: public std::exception
     {

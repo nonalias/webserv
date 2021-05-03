@@ -83,14 +83,12 @@ int		Server::getTimeDiff(std::string start)
 	return (result);
 }
 
-void	Server::init(fd_set *readSet, fd_set *writeSet, fd_set *rSet, fd_set *wSet)
+void	Server::init(fd_set *rSet, fd_set *wSet)
 {
 	int				yes = 1;
 	std::string		to_parse;
 	std::string		host;
 
-	_readSet = readSet;
-	_writeSet = writeSet;
 	_wSet = wSet;
 	_rSet = rSet;
 
