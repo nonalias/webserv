@@ -5,12 +5,12 @@ Client::Client(int filed, fd_set *r, fd_set *w, struct sockaddr_in info)
 : fd(filed), read_fd(-1), write_fd(-1), status(STANDBY), cgi_pid(-1), tmp_fd(-1), rSet(r), wSet(w)
 {
 	ip = inet_ntoa(info.sin_addr);
-	port = htons(info.sin_port);
+	port = ft::ft_htons(info.sin_port);
 	rBuf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	memset((void *)rBuf, 0, BUFFER_SIZE + 1);
 	fcntl(fd, F_SETFL, O_NONBLOCK); // fd를 non-blocking 모드로 바꿈
-	FD_SET(fd, rSet);  // 클라이언트와 연결된 서버의 rSet에 클라이언트 fd 추가
-	FD_SET(fd, wSet);  // 클라이언트와 연결된 서버의 wSet에 클라이언트 fd 추가
+	ft::FT_FD_SET(fd, rSet);  // 클라이언트와 연결된 서버의 rSet에 클라이언트 fd 추가
+	ft::FT_FD_SET(fd, wSet);  // 클라이언트와 연결된 서버의 wSet에 클라이언트 fd 추가
 	chunk.len = 0;
 	chunk.done = false;
 	chunk.found = false;
@@ -25,18 +25,18 @@ Client::~Client()
 	if (fd != -1)
 	{
 		close(fd);
-		FD_CLR(fd, rSet);
-		FD_CLR(fd, wSet);
+		ft::FT_FD_CLR(fd, rSet);
+		ft::FT_FD_CLR(fd, wSet);
 	}
 	if (read_fd != -1)
 	{
 		close(read_fd);
-		FD_CLR(read_fd, rSet);
+		ft::FT_FD_CLR(read_fd, rSet);
 	}
 	if (write_fd != -1)
 	{
 		close(write_fd);
-		FD_CLR(write_fd, wSet);
+		ft::FT_FD_CLR(write_fd, wSet);
 	}
 	if (tmp_fd != -1)
 	{
@@ -49,17 +49,17 @@ Client::~Client()
 void	Client::setReadState(bool state)
 {
 	if (state)
-		FD_SET(fd, rSet);
+		ft::FT_FD_SET(fd, rSet);
 	else
-		FD_CLR(fd, rSet);
+		ft::FT_FD_CLR(fd, rSet);
 }
 
 void	Client::setWriteState(bool state)
 {
 	if (state)
-		FD_SET(fd, wSet);
+		ft::FT_FD_SET(fd, wSet);
 	else
-		FD_CLR(fd, wSet);
+		ft::FT_FD_CLR(fd, wSet);
 }
 
 void	Client::setFileToRead(bool state)
@@ -67,9 +67,9 @@ void	Client::setFileToRead(bool state)
 	if (read_fd != -1)
 	{
 		if (state)
-			FD_SET(read_fd, rSet);
+			ft::FT_FD_SET(read_fd, rSet);
 		else
-			FD_CLR(read_fd, rSet);
+			ft::FT_FD_CLR(read_fd, rSet);
 	}
 }
 
@@ -78,9 +78,9 @@ void	Client::setFileToWrite(bool state)
 	if (write_fd != -1)
 	{
 		if (state)
-			FD_SET(write_fd, wSet);
+			ft::FT_FD_SET(write_fd, wSet);
 		else
-			FD_CLR(write_fd, wSet);
+			ft::FT_FD_CLR(write_fd, wSet);
 	}
 }
 

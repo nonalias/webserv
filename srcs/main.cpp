@@ -43,7 +43,7 @@ int 	main(int ac, char **av)
 
 		for (std::vector<Server>::iterator s(g_servers.begin()); s != g_servers.end(); ++s)
 		{
-			if (FD_ISSET(s->getFd(), &readSet))
+			if (ft::FT_FD_ISSET(s->getFd(), &readSet))
 			{
 				try
 				{
@@ -61,24 +61,24 @@ int 	main(int ac, char **av)
 			}
 			if (!s->_503_clients.empty())
 			{
-				if (FD_ISSET(s->_503_clients.front(), &writeSet))  // 필요없는 조건문 인거 같아서 나중에 주석처리 예정
+				if (ft::FT_FD_ISSET(s->_503_clients.front(), &writeSet))  // 필요없는 조건문 인거 같아서 나중에 주석처리 예정
 					s->send503(s->_503_clients.front());
 			}
 
 			for (std::vector<Client*>::iterator c(s->_clients.begin()); c != s->_clients.end(); ++c)
 			{
 				client = *c;
-				if (FD_ISSET(client->fd, &readSet))
+				if (ft::FT_FD_ISSET(client->fd, &readSet))
 					if (!s->readRequest(c))
 						break ;
-				if (FD_ISSET(client->fd, &writeSet))
+				if (ft::FT_FD_ISSET(client->fd, &writeSet))
 					if (!s->writeResponse(c))
 						break ;
 				if (client->write_fd != -1)
-					if (FD_ISSET(client->write_fd, &writeSet))
+					if (ft::FT_FD_ISSET(client->write_fd, &writeSet))
 						client->writeFile();
 				if (client->read_fd != -1)
-					if (FD_ISSET(client->read_fd, &readSet))
+					if (ft::FT_FD_ISSET(client->read_fd, &readSet))
 						client->readFile(); // 에러메세지도 들어옴 getErrorPage()
 			}
 		}

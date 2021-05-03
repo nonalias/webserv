@@ -186,10 +186,10 @@ void			Config::getContent(std::string &buffer, std::string &context, std::string
 void			Config::init(fd_set *rSet, fd_set *wSet, fd_set *readSet, fd_set *writeSet, struct timeval *timeout)
 {
 	signal(SIGINT, exit);
-	FD_ZERO(rSet);
-	FD_ZERO(wSet);
-	FD_ZERO(readSet);
-	FD_ZERO(writeSet);
+	ft::FT_FD_ZERO(rSet);
+	ft::FT_FD_ZERO(wSet);
+	ft::FT_FD_ZERO(readSet);
+	ft::FT_FD_ZERO(writeSet);
 	timeout->tv_sec = 1;
 	timeout->tv_usec = 0;
 
