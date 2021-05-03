@@ -18,6 +18,9 @@ int			Dispatcher::setStatusCode(Client &client)
             client.res.status_code = UNAUTHORIZED;
             if (client.req.headers.find("Authorization") != client.req.headers.end())
             {
+                std::string &str = client.req.headers["Authorization"];
+                if (str.find("Basic") != std::string::npos)
+                    str = str.substr(str.find("Basic ") + 6);
                 credential = decode64(client.req.headers["Authorization"].c_str());
                 if (credential == client.conf["auth"])
                     client.res.status_code = OK;
