@@ -204,14 +204,7 @@ int		Server::readRequest(std::vector<Client*>::iterator it)
 
 	client = *it;
 	bytes = strlen(client->rBuf);
-	if (bytes > 0)
-	{
-			tmp = (char *)malloc(sizeof(char) * (bytes + BUFFER_SIZE + 1));
-			strcpy(tmp, client->rBuf);
-			free(client->rBuf);
-			client->rBuf = tmp;
-	}
-	ret = read(client->fd, client->rBuf + bytes, BUFFER_SIZE);
+	ret = read(client->fd, client->rBuf + bytes, BUFFER_SIZE - bytes);
 	bytes += ret;
 	if (ret > 0)
 	{
