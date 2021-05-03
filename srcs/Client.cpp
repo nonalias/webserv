@@ -112,17 +112,20 @@ void	Client::readFile()
 		}
 	}
 	ret = read(read_fd, buffer, BUFFER_SIZE);
-
 	if (ret >= 0)
+	{
 		buffer[ret] = '\0';
-	std::string	tmp(buffer, ret);
-	res.body += tmp;
-	if (ret == 0)
+		std::string	tmp(buffer, ret);
+		res.body += tmp;
+	}
+	if (ret <= 0)
 	{
 		close(read_fd);
 		unlink(TMP_PATH);
 		setFileToRead(false);
 		read_fd = -1;
+		if (ret == -1)
+			g_logger.log("Error: read()", LOW);
 	}
 }
 
@@ -131,6 +134,15 @@ void	Client::writeFile()
 	int ret = 0;
 
 	ret = write(write_fd, req.body.c_str(), req.body.size());
+	if (ret == -1)
+	{
+		req.body.clear();
+		close(write_fd);
+		setFileToWrite(false);
+		write_fd = -1;
+		g_logger.log("Error: write()", LOW);
+		return ;
+	}
 	if (cgi_pid != -1)
 		g_logger.log("sent " + std::to_string(ret) + " bytes to CGI stdin", MED);
 	else

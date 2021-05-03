@@ -169,6 +169,7 @@ void	Server::send503(int fd)
 {
 	Response		response;
 	std::string		str;
+	int				ret;
 
 	response.version = "HTTP/1.1";
 	response.status_code = UNAVAILABLE;
@@ -187,7 +188,9 @@ void	Server::send503(int fd)
 	}
 	str += "\r\n";
 	str += response.body;
-	write(fd, str.c_str(), str.size());
+	ret = write(fd, str.c_str(), str.size());
+	if (ret == -1)
+		g_logger.log("Error: write()", LOW);
 	close(fd);
 	ft::FT_FD_CLR(fd, _wSet);
 	_503_clients.pop();
@@ -228,6 +231,8 @@ int		Server::readRequest(std::vector<Client*>::iterator it)
 		_clients.erase(it);
 		if (client)
 			delete client;
+		if (ret == -1)
+			g_logger.log("Error: read()", LOW);
 		g_logger.log("[" + std::to_string(_port) + "] " + "connected clients: " + std::to_string(_clients.size()), LOW);
 		return (0);
 	}
@@ -248,12 +253,14 @@ int		Server::writeResponse(std::vector<Client*>::iterator it)
 			log += client->response.substr(0, 128);
 			g_logger.log(log, HIGH);
 			bytes = write(client->fd, client->response.c_str(), client->response.size());
-			if (bytes < client->response.size())
+			if ((bytes != (unsigned long)-1) && (bytes < client->response.size()))
 				client->response = client->response.substr(bytes);
 			else
 			{
 				client->response.clear();
 				client->setToStandBy();
+				if (bytes == (unsigned long)-1)
+					g_logger.log("Error: write()", LOW);
 			}
 			client->last_date = ft::getDate();
 			break ;
