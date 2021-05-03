@@ -148,5 +148,28 @@ c == ' ')
 			return (1);
 		return (nb * getpower(nb, power - 1));
 	}
+
+	int FT_FD_ISSET(int _n, fd_set *_p)
+	{
+
+	return (_p->fds_bits[(unsigned long)_n/__DARWIN_NFDBITS] & ((__int32_t)(1<<((unsigned long)_n % __DARWIN_NFDBITS))));
+	}
+
+	void FT_FD_ZERO(fd_set *_p)
+	{
+		__builtin_bzero(_p, sizeof(*_p));
+	}
+
+	void FT_FD_SET(int _n, fd_set *_p)
+	{
+		int __fd = _n;
+		(_p->fds_bits[(unsigned long)__fd/__DARWIN_NFDBITS] |= ((__int32_t)(1<<(unsigned long)__fd % __DARWIN_NFDBITS)));
+	}
+	
+	void FT_FD_CLR(int _n, fd_set *_p)
+	{
+		int __fd = _n;
+		_p->fds_bits[(unsigned long)__fd/__DARWIN_NFDBITS] &= ~((__int32_t)(1<<(unsigned long)__fd%__DARWIN_NFDBITS));
+	}
 }
 
