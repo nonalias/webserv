@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ijuhae <ijuhae@student.42.fr>              +#+  +:+       +#+         #
+#    By: yonglee <yonglee@student.42seoul.kr>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/04/27 14:54:02 by ijuhae            #+#    #+#              #
-#    Updated: 2021/04/29 20:33:44 by ijuhae           ###   ########.fr        #
+#    Updated: 2021/05/03 23:53:24 by yonglee          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -59,9 +59,10 @@ OBJS 		=	$(SRCS:%.cpp=$(DIR_OBJS)%.o)
 OBJ			= 	*.o
 NAME 		=	webserv
 CONFIG		=	webserv.conf
+CONFIG2		=	webserv2.conf
 # **************************************************************************** #
 ## RULES ##
-all:			$(NAME) $(DIR_CONFIGS)$(CONFIG)
+all:			$(NAME) $(DIR_CONFIGS)$(CONFIG) $(DIR_CONFIGS)$(CONFIG2)
 # VARIABLES RULES #
 $(NAME):		$(OBJS)
 				make -C $(DIR_DIS)
@@ -77,6 +78,9 @@ $(DIR_OBJS):
 $(DIR_CONFIGS)$(CONFIG):
 				@cat $(DIR_CONFIGS)webserv_model.conf | sed 's=PWD=$(PWD)=g' > $(DIR_CONFIGS)$(CONFIG)
 				@printf "\033[2K\r$(_GREEN) Default config file '$(DIR_CONFIGS)$(CONFIG)' created. $(_END)✅\n"
+$(DIR_CONFIGS)$(CONFIG2):
+				@cat $(DIR_CONFIGS)webserv_model2.conf | sed 's=PWD=$(PWD)=g' > $(DIR_CONFIGS)$(CONFIG2)
+				@printf "\033[2K\r$(_GREEN) Default config file '$(DIR_CONFIGS)$(CONFIG2)' created. $(_END)✅\n"
 # OBLIGATORY PART #
 clean:
 				make clean -C $(DIR_DIS)
@@ -88,5 +92,7 @@ fclean:			clean
 				@printf "$(_RED) '"$(NAME)"' has been deleted. $(_END)🗑️\n"
 				@$(RM) $(DIR_CONFIGS)$(CONFIG)
 				@printf "$(_RED) '"$(DIR_CONFIGS)$(CONFIG)"' has been deleted. $(_END)🗑️\n"
+				@$(RM) $(DIR_CONFIGS)$(CONFIG2)
+				@printf "$(_RED) '"$(DIR_CONFIGS)$(CONFIG2)"' has been deleted. $(_END)🗑️\n"
 re:				fclean all
 .PHONY:			all clean fclean re bonus re_bonus
