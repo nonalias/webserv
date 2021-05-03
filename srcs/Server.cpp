@@ -200,7 +200,6 @@ int		Server::readRequest(std::vector<Client*>::iterator it)
 	int			ret;
 	Client		*client = NULL;
 	std::string	log;
-	char		*tmp;
 
 	client = *it;
 	bytes = strlen(client->rBuf);
