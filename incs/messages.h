@@ -1,10 +1,6 @@
 #ifndef MESSAGES_H
 #define MESSAGES_H
-
 #include "package.hpp"
-
-// #include <map>
-// #include <string>
 
 struct Request
 {

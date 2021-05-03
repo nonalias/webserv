@@ -1,22 +1,6 @@
 #ifndef Server_HPP
 #define Server_HPP
-
 #include "package.hpp"
-
-// #include <queue>
-// #include <fcntl.h>
-// #include <unistd.h>
-// #include <cstdlib>
-// #include <string>
-// #include <map>
-// #include <vector>
-// #include <iostream>
-// #include <dirent.h>
-// #include <sys/stat.h>
-// #include <netinet/in.h>
-// #include "Parser.hpp"
-// #include "Dispatcher.hpp"
-
 #define TIMEOUT 10
 #define RETRY	"25"
 #define _503_CLIENTS_SIZE 10
@@ -47,9 +31,6 @@ class Server
 
 		std::vector<Client*>	_clients;
 		std::queue<int>			_503_clients;
-
-        // test method
-        void print_conf(void);
 
 		int		getFd() const;
         int     getMaxFd();

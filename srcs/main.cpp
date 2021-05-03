@@ -13,7 +13,6 @@ int		ret_error(std::string error)
 int 	main(int ac, char **av)
 {
 	Config					config(*Dispatcher::GetInstance());
-	Server					tmpServer(*Dispatcher::GetInstance());
 	fd_set					readSet;
 	fd_set					writeSet;
 	fd_set					rSet;
@@ -27,7 +26,6 @@ int 	main(int ac, char **av)
 	{
 		config.parse(av[1], g_servers);
 		config.init(&rSet, &wSet, &readSet, &writeSet, &timeout);
-		tmpServer.print_conf();
 	}
 	catch (std::exception &e)
 	{
@@ -61,6 +59,7 @@ int 	main(int ac, char **av)
 			}
 			if (!s->_503_clients.empty())
 			{
+
 				if (ft::FT_FD_ISSET(s->_503_clients.front(), &writeSet))  // 필요없는 조건문 인거 같아서 나중에 주석처리 예정
 					s->send503(s->_503_clients.front());
 			}

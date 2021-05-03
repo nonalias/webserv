@@ -1,18 +1,6 @@
 #ifndef DISPATCHER_HPP
-#define DISPATCHER_HPP
-
-#include "package.hpp"
-
-// #include <vector>
-// #include <dirent.h>
-// #include <sys/stat.h>
-// #include <sstream>
-// #include <iostream>
-
-// #include "statusCode.h"
-// #include "Client.hpp"
-// #include "Parser.hpp"
-// #include "utils.h"
+# define DISPATCHER_HPP
+# include "package.hpp"
 
 class Client;
 class Server;
@@ -21,11 +9,9 @@ class Dispatcher
 {
     public:
         void            execute(Client &client);
-        
         typedef void    (Dispatcher::*ptr)(Client &client);
         typedef int	    (Dispatcher::*sptr)(Client &client);
-
-        static Dispatcher* GetInstance() {
+        static          Dispatcher* GetInstance() {
             if(!instance){
                 instance = new Dispatcher();
             }
@@ -34,8 +20,6 @@ class Dispatcher
 
     private:
         Parser _parser;
-
-        // Dispatcher
         void	        GETHEADMethod(Client &client);
         void	        POSTMethod(Client &client);
         void        	PUTMethod(Client &client);
@@ -45,15 +29,11 @@ class Dispatcher
         void        	DELETEMethod(Client &client);
         void        	handlingBadRequest(Client &client);
 
-        // DispatcherCGI
         char        	**setCGIEnv(Client &client);
         void        	executeCGI(Client &client);
-        // void          	parseCGIResult(Client &client);
 
-        // DispatcherNegotiate
         void        	negotiate(Client &client);
 
-        // DispatcherStatusCode
         int     		setStatusCode(Client &client);
         int     		GETHEADStatus(Client &client);
         int     		POSTStatus(Client &client);
@@ -63,7 +43,6 @@ class Dispatcher
         int     		OPTIONSStatus(Client &client);
         int	        	DELETEStatus(Client &client);
 
-        // DispatcherUtils
         void			createListing(Client &client);
         void		    createResponse(Client &client);
         std::string		decode64(const char *data);

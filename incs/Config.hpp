@@ -1,26 +1,17 @@
 #ifndef CONFIG_HPP
 # define CONFIG_HPP
-
-#include "package.hpp"
-
-// # include <fcntl.h>
-// # include <unistd.h>
-// # include <stdlib.h>
-// # include <string>
-// # include <map>
-// # include <vector>
-// # include <iostream>
-// # include <dirent.h>
-// # include "Server.hpp"
-// # include "Client.hpp"
-
-// # include <sys/stat.h>
-#define MAX_FD 256 - 20
+# define MAX_FD 256 - 20
+# include "package.hpp"
 
 class Config
 {
     typedef std::map<std::string, std::string> 	elmt;
     typedef std::map<std::string, elmt>			config;
+
+    private:
+        std::string	readFile(char *file);
+        void		getContent(std::string &buffer, std::string &context, std::string prec, size_t &nb_line, config &config);
+        Dispatcher  &_dispatcher;
 
     public:
         Config(Dispatcher &_dispatcher);
@@ -43,11 +34,6 @@ class Config
             virtual ~InvalidConfigFileException(void) throw();
             virtual const char			*what(void) const throw();
     };
-
-    private:
-        std::string	readFile(char *file);
-        void		getContent(std::string &buffer, std::string &context, std::string prec, size_t &nb_line, config &config);
-        Dispatcher  &_dispatcher;
 };
 
 #endif
